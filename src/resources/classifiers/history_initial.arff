@@ -1,0 +1,17 @@
+@relation 'history'
+@attribute segpath string
+@attribute HostrelPagesRatio numeric
+@attribute HostrelSegsRatio numeric
+@attribute relPagesRatio numeric
+@attribute relSegsRatio numeric
+@attribute ParentRelPagesRatio numeric
+@attribute ParentRelSegsRatio numeric
+@attribute ChildRelPagesRatio numeric
+@attribute ChildRelSegsRatio numeric
+@attribute SiblingRelPagesRatio numeric
+@attribute SiblingRelSegsRatio numeric
+@attribute class {thai,non}
+
+@data
+http://www.a.com/tmp/,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,non
+http://www.a.com/tmp/,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,thai

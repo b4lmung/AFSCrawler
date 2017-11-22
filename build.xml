@@ -1,0 +1,49 @@
+<project>
+	<property name="lib.dir" value="libs" />
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+
+	<path id="libs.path">
+		<fileset dir="${lib.dir}" includes="*.jar" />
+	</path>
+
+	<fileset id="resources" dir="${src.dir}">
+		<include name="*.properties" />
+	</fileset>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${build.dir}" />
+
+		<javac compiler="javac1.8" includeantruntime="false" debug="true" srcdir="src" destdir="${build.dir}" encoding="UTF-8">
+			<classpath refid="libs.path" />
+		</javac>
+
+	</target>
+
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${build.dir}/resources" />
+		
+		<copy todir="${build.dir}/resources/">
+			<fileset dir="${src.dir}/resources/" />
+		</copy>
+
+		<jar destfile="ic.jar" basedir="${build.dir}">
+			<zipgroupfileset dir="${lib.dir}" includes="*.jar" />
+			
+			<manifest>
+				<attribute name="Main-Class" value="com.job.ic.crawlers.HttpCrawler" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset refid="resources" />
+		</jar>
+
+		<delete dir="${build.dir}" />
+	</target>
+
+
+</project>

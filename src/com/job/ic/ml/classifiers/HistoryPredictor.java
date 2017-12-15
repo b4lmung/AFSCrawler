@@ -228,39 +228,41 @@ public class HistoryPredictor {
         ArrayList<Double> nonRecent = new ArrayList<>();
         ArrayList<Double> ratioRecent = new ArrayList<>();
 
-        int num = 3;
-        if (tree.getCumulativeRelPages().size() >= num) {
+        int interval = 10;
+        int numObserved = 3;
+        
+        if (tree.getCumulativeRelPages().size() >= interval*numObserved) {
             ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
             ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
-
-            int start = tmpRel.size();
-            slopeRel = tmpRel.get(start - 1) - tmpRel.get(start - num);
-            slopeNon = tmpNon.get(start - 1) - tmpNon.get(start - num);
-            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - 1), tmpNon.get(start - 1)) - HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - num), tmpNon.get(start - num));
-            slopeRel /= num;
-            slopeNon /= num;
-            slopeRatio /= num;
-
-            avgRatio = 0;
-            for (int i = start - num; i < start; i++) {
-
-                if (i == 0) {
-                    relRecent.add(0.0);
-                    nonRecent.add(0.0);
-                } else {
-                    double sr = tmpRel.get(i) - tmpRel.get(i - 1);
-                    double sn = tmpNon.get(i) - tmpNon.get(i - 1);
-                    relRecent.add(sr);
-                    nonRecent.add(sn);
-                }
-
-                double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
-                ratioRecent.add(degree);
+            
+            //transform
+            ArrayList<Integer> transRel = new ArrayList<>();
+            ArrayList<Integer> transNon = new ArrayList<>();
+            
+            int count=0;
+            for(int i=tmpRel.size() - interval*numObserved; i<tmpRel.size(); i++) {
+               	if(++count % interval == 0) {
+               		transRel.add(tmpRel.get(i));
+               		transNon.add(tmpNon.get(i));
+               	}
+            }
+            
+            tmpRel = null;
+            tmpNon = null;
+            
+            slopeRel = transRel.get(0) - transRel.get(transRel.size()-1);
+            slopeNon = transNon.get(0) - transNon.get(transNon.size()-1);
+            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(0), tmpNon.get(0)) - HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(transRel.size()-1), tmpNon.get(transRel.size()-1));
+            slopeRel /= numObserved;
+            slopeNon /= numObserved;
+            slopeRatio /= numObserved;
+            
+            for(int i=0; i<transRel.size(); i++) {
+            	double degree = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(i), transNon.get(i));
                 avgRatio += degree;
             }
-
-            avgRatio /= num;
-
+            avgRatio /= numObserved;
+         
         }
 
 

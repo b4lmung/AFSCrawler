@@ -74,13 +74,34 @@ public class Test {
 	
 	public static void main(String[] args) throws IOException {
 		
-		System.out.println("hello");
-		UrlDb.createEnvironment("urlDb");
+		ArrayList<Integer> tmpRel = new ArrayList<>();
+        ArrayList<Integer> tmpNon = new ArrayList<>();
+        
+        int interval = 2;
+        int numObserved = 5;
+        
+        
+        for(int i=0; i<10; i++) {
+        	tmpRel.add(i+1);
+        	tmpNon.add(i+1);
+        }
+        
+        ArrayList<Integer> transRel = new ArrayList<>();
+        ArrayList<Integer> transNon = new ArrayList<>();
+        
+        
+        int cc=0;
+        for(int i=tmpRel.size() - interval*numObserved; i<tmpRel.size(); i++) {
+           	if(++cc % interval == 0) {
+           		transRel.add(tmpRel.get(i));
+           		transNon.add(tmpNon.get(i));
+           	}
+        }
 		
-		for(String s: FileUtils.readFile("site.txt")) {
-			System.out.println(s + "\t" + UrlDb.getUrlDAO().checkAndAddUrl(s, false));
-		}
-		UrlDb.close();
+		System.out.println(transRel);
+		System.out.println(transNon);
+		
+		
 		
 		System.exit(0);;
 		

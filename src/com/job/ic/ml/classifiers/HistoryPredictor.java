@@ -228,38 +228,51 @@ public class HistoryPredictor {
         ArrayList<Double> nonRecent = new ArrayList<>();
         ArrayList<Double> ratioRecent = new ArrayList<>();
 
-        int num = 3;
-        if (tree.getCumulativeRelPages().size() >= num) {
+        int interval = 10;
+        int numObserved = 3;
+        
+        if (tree.getCumulativeRelPages().size() >= interval*numObserved) {
             ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
             ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
-
+            
+            
+            
+            
             int start = tmpRel.size();
-            slopeRel = tmpRel.get(start - 1) - tmpRel.get(start - num);
-            slopeNon = tmpNon.get(start - 1) - tmpNon.get(start - num);
-            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - 1), tmpNon.get(start - 1)) - HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - num), tmpNon.get(start - num));
-            slopeRel /= num;
-            slopeNon /= num;
-            slopeRatio /= num;
+            slopeRel = tmpRel.get(start - 1) - tmpRel.get(start - (interval*numObserved));
+            slopeNon = tmpNon.get(start - 1) - tmpNon.get(start - (interval*numObserved));
+            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - 1), tmpNon.get(start - 1)) - HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - (interval*numObserved)), tmpNon.get(start - (interval*numObserved)));
+            slopeRel /= numObserved;
+            slopeNon /= numObserved;
+            slopeRatio /= numObserved;
 
             avgRatio = 0;
-            for (int i = start - num; i < start; i++) {
+            
+            int count = 0;
+            for (int i = start - interval*numObserved; i < start; i++) {
 
-                if (i == 0) {
+                if (count == 0) {
                     relRecent.add(0.0);
                     nonRecent.add(0.0);
-                } else {
+                    
+                    double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
+                    ratioRecent.add(degree);
+                    avgRatio += degree;
+                    
+                } else if(count%interval == 0){
                     double sr = tmpRel.get(i) - tmpRel.get(i - 1);
                     double sn = tmpNon.get(i) - tmpNon.get(i - 1);
                     relRecent.add(sr);
                     nonRecent.add(sn);
+                    
+                    double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
+                    ratioRecent.add(degree);
+                    avgRatio += degree;
                 }
 
-                double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
-                ratioRecent.add(degree);
-                avgRatio += degree;
             }
 
-            avgRatio /= num;
+            avgRatio /= numObserved;
 
         }
 

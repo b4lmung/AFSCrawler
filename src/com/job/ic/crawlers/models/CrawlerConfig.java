@@ -232,7 +232,9 @@ public class CrawlerConfig implements Serializable {
 				System.err.println("segment mode");
 			}
 			
-			if(config.isPageMode){
+			System.err.println(config.isPageMode());
+			
+			if(config.isPageMode()){
 				config.setPredictorTrainingPath(config.getPredictorTrainingPath().replace(".arff", "-page.arff"));
 			}
 			

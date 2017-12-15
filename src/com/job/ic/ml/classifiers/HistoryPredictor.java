@@ -228,7 +228,7 @@ public class HistoryPredictor {
         ArrayList<Double> nonRecent = new ArrayList<>();
         ArrayList<Double> ratioRecent = new ArrayList<>();
 
-        int interval = 10;
+        int interval = 5;
         int numObserved = 3;
         
         if (tree.getCumulativeRelPages().size() >= interval*numObserved) {
@@ -247,15 +247,19 @@ public class HistoryPredictor {
                	}
             }
             
-            tmpRel = null;
-            tmpNon = null;
-            
-            slopeRel = transRel.get(0) - transRel.get(transRel.size()-1);
-            slopeNon = transNon.get(0) - transNon.get(transNon.size()-1);
-            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(0), tmpNon.get(0)) - HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(transRel.size()-1), tmpNon.get(transRel.size()-1));
+          
+            slopeRel = transRel.get(transRel.size()-1) - transRel.get(0);
+            slopeNon = transNon.get(transNon.size()-1) - transNon.get(0);
+            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(transRel.size()-1), transNon.get(transNon.size()-1)) - HttpSegmentCrawler.calcRelevanceDegree(transRel.get(0), transNon.get(0));
             slopeRel /= numObserved;
             slopeNon /= numObserved;
             slopeRatio /= numObserved;
+            
+            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeRel :" + slopeRel + "\t" + transRel + tmpRel);
+            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeNon :" + slopeNon + "\t" + transNon + tmpNon);
+            
+            tmpRel = null;
+            tmpNon = null;
             
             for(int i=0; i<transRel.size(); i++) {
             	double degree = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(i), transNon.get(i));

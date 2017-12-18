@@ -92,7 +92,7 @@ public class HistoryPredictor {
 					features = features.substring(0, features.lastIndexOf(",non")) + ",thai";
 				}
 
-				if (features.contains("?,?,?,?,?,?,"))
+				if (features.contains("?,?,?,?,"))
 					continue;
 
 				String host = HttpUtils.getHost(segmentName);
@@ -317,7 +317,7 @@ public class HistoryPredictor {
 			if (rel.get(host).contains(data))
 				continue;
 
-			if (features.contains("?,?,?,?,?,?,"))
+			if (features.contains("?,?,?,?,"))
 				continue;
 
 			rel.get(host).add(data);
@@ -445,7 +445,7 @@ public class HistoryPredictor {
 
 			for (String s : all) {
 
-				if (s.contains("?,?,?,?,?,?,"))
+				if (s.contains("?,?,?,?,"))
 					continue;
 
 				String[] tmp = s.split(",");

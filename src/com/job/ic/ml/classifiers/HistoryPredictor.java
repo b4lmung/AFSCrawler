@@ -252,8 +252,8 @@ public class HistoryPredictor {
 	            slopeNon /= numObserved;
 	            slopeRatio /= numObserved;
 	            
-	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeRel :" + slopeRel + "\t" + transRel + tmpRel);
-	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeNon :" + slopeNon + "\t" + transNon + tmpNon);
+//	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeRel :" + slopeRel + "\t" + transRel + tmpRel);
+//	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeNon :" + slopeNon + "\t" + transNon + tmpNon);
 	            
 	            tmpRel = null;
 	            tmpNon = null;

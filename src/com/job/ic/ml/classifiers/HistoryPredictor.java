@@ -251,12 +251,12 @@ public class HistoryPredictor {
             slopeRel = transRel.get(transRel.size()-1) - transRel.get(0);
             slopeNon = transNon.get(transNon.size()-1) - transNon.get(0);
             slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(transRel.size()-1), transNon.get(transNon.size()-1)) - HttpSegmentCrawler.calcRelevanceDegree(transRel.get(0), transNon.get(0));
+            
+//            logger.info(slopeRatio + "\t" + slopeRel + "\t" + slopeNon);
+            
             slopeRel /= numObserved;
             slopeNon /= numObserved;
             slopeRatio /= numObserved;
-            
-            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeRel :" + slopeRel + "\t" + transRel + tmpRel);
-            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeNon :" + slopeNon + "\t" + transNon + tmpNon);
             
             tmpRel = null;
             tmpNon = null;
@@ -419,7 +419,7 @@ public class HistoryPredictor {
     }
 
     public static void main(String[] args) {
-        String training = "htourismฃ-raw.arff";
+        String training = "history.arff";
         // cleanDirectoryFeature(training);
         // System.exit(0)
 
@@ -428,7 +428,7 @@ public class HistoryPredictor {
         try {
             double result = 0;
             for (int i = 0; i < 10; i++) {
-                result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, false);
+                result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, true);
                 avg += result;
                 // result = kFold(training, training.replace("-raw",
                 // "").replace(".arff", "") + i, false);
@@ -465,8 +465,9 @@ public class HistoryPredictor {
             for (String s : all) {
 
                 
-                if (s.contains("?,?,?,?,?,?,"))
+                if (s.contains("?,?,?,?,"))
                     continue;
+                
 
                 String[] tmp = s.split(",");
 

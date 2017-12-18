@@ -10,6 +10,7 @@ public class AccuracyTracker {
 	private static ConfusionMatrixObj urlNon = new ConfusionMatrixObj();
 
 	private static ConfusionMatrixObj history = new ConfusionMatrixObj();
+	private static ConfusionMatrixObj neighbor = new ConfusionMatrixObj();
 
 	private static ConfusionMatrixObj allRel = new ConfusionMatrixObj();
 	private static ConfusionMatrixObj allNon = new ConfusionMatrixObj();
@@ -24,6 +25,7 @@ public class AccuracyTracker {
 		 urlNon = new ConfusionMatrixObj();
 
 		 history = new ConfusionMatrixObj();
+		 neighbor = new ConfusionMatrixObj();
 
 		 allRel = new ConfusionMatrixObj();
 		 allNon = new ConfusionMatrixObj();
@@ -71,5 +73,13 @@ public class AccuracyTracker {
 	}
 	public static ConfusionMatrixObj getNonSegmentPredictorConfusionMatrix() {
 		return allNon;
+	}
+
+	public static ConfusionMatrixObj getNeighborConfusionMatrix() {
+		return neighbor;
+	}
+
+	public static void setNeighborConfusionMatrix(ConfusionMatrixObj neighbor) {
+		AccuracyTracker.neighbor = neighbor;
 	}
 }

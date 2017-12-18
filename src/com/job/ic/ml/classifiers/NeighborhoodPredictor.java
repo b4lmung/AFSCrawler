@@ -122,15 +122,15 @@ public class NeighborhoodPredictor {
 
 				if (predict.getResultClass() == ResultClass.RELEVANT) {
 					if (isRelevant) {
-						AccuracyTracker.getHistoryConfusionMatrix().incTp();
+						AccuracyTracker.getNeighborConfusionMatrix().incTp();
 					} else {
-						AccuracyTracker.getHistoryConfusionMatrix().incFn();
+						AccuracyTracker.getNeighborConfusionMatrix().incFn();
 					}
 				} else {
 					if (isRelevant) {
-						AccuracyTracker.getHistoryConfusionMatrix().incFp();
+						AccuracyTracker.getNeighborConfusionMatrix().incFp();
 					} else {
-						AccuracyTracker.getHistoryConfusionMatrix().incTn();
+						AccuracyTracker.getNeighborConfusionMatrix().incTn();
 					}
 				}
 

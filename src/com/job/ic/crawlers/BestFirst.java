@@ -44,6 +44,7 @@ import com.job.ic.crawlers.models.QueueProxyObj;
 import com.job.ic.crawlers.models.WebsiteSegment;
 import com.job.ic.crawlers.parser.HtmlParser;
 import com.job.ic.ml.classifiers.ClassifierOutput;
+import com.job.ic.ml.classifiers.HistoryPredictor;
 import com.job.ic.ml.classifiers.NeighborhoodPredictor;
 import com.job.ic.ml.classifiers.PageClassifier;
 import com.job.ic.ml.classifiers.ResultClass;
@@ -95,12 +96,11 @@ public class BestFirst {
 
 	public static String progress() {
 		double hv = rel / (rel + non);
-//		double total = rel + non;
-		hv*=100;
+		// double total = rel + non;
+		hv *= 100;
 
-		return String.format("%d\t%.3f", (int)(rel+non), hv);
+		return String.format("%d\t%.3f", (int) (rel + non), hv);
 	}
-
 
 	public static void main(final String[] args) throws Exception {
 
@@ -111,7 +111,8 @@ public class BestFirst {
 
 		net.htmlparser.jericho.Config.LoggerProvider = LoggerProvider.DISABLED;
 
-		if (CrawlerConfig.getConfig().getLocalProxyPath() != null && !CrawlerConfig.getConfig().getLocalProxyPath().trim().equals("")) {
+		if (CrawlerConfig.getConfig().getLocalProxyPath() != null
+				&& !CrawlerConfig.getConfig().getLocalProxyPath().trim().equals("")) {
 			ProxyService.setupProxy(CrawlerConfig.getConfig().getLocalProxyPath());
 			isProxy = true;
 
@@ -122,11 +123,14 @@ public class BestFirst {
 
 		if (CrawlerConfig.getConfig().getProxyServer().trim().length() != 0) {
 			// set proxy
-			HttpHost proxy = new HttpHost(CrawlerConfig.getConfig().getProxyServer(), CrawlerConfig.getConfig().getProxyPort());
-			config = RequestConfig.custom().setStaleConnectionCheckEnabled(false).setProxy(proxy).setSocketTimeout((int) CrawlerConfig.getConfig().getSoTimeout())
+			HttpHost proxy = new HttpHost(CrawlerConfig.getConfig().getProxyServer(),
+					CrawlerConfig.getConfig().getProxyPort());
+			config = RequestConfig.custom().setStaleConnectionCheckEnabled(false).setProxy(proxy)
+					.setSocketTimeout((int) CrawlerConfig.getConfig().getSoTimeout())
 					.setConnectTimeout((int) CrawlerConfig.getConfig().getTimeout()).build();
 		} else {
-			config = RequestConfig.custom().setStaleConnectionCheckEnabled(false).setSocketTimeout((int) CrawlerConfig.getConfig().getSoTimeout())
+			config = RequestConfig.custom().setStaleConnectionCheckEnabled(false)
+					.setSocketTimeout((int) CrawlerConfig.getConfig().getSoTimeout())
 					.setConnectTimeout((int) CrawlerConfig.getConfig().getTimeout()).build();
 		}
 
@@ -155,19 +159,22 @@ public class BestFirst {
 				}
 			});
 
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslsf).register("http", new PlainConnectionSocketFactory())
-					.build();
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register("https", sslsf).register("http", new PlainConnectionSocketFactory()).build();
 			mgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 
 		}
 
 		mgr.setMaxTotal(300);
 		mgr.setDefaultMaxPerRoute(10);
-		client = HttpClients.custom().setUserAgent(CrawlerConfig.getConfig().getUsrAgent()).setConnectionManager(mgr).setDefaultRequestConfig(config).build();
+		client = HttpClients.custom().setUserAgent(CrawlerConfig.getConfig().getUsrAgent()).setConnectionManager(mgr)
+				.setDefaultRequestConfig(config).build();
 
 		page = null;
-		if (CrawlerConfig.getConfig().getLocalProxyPath() == null || CrawlerConfig.getConfig().getLocalProxyPath().equals(""))
-			if (CrawlerConfig.getConfig().getCheckerType() != null && CrawlerConfig.getConfig().getCheckerType().trim().length() > 0) {
+		if (CrawlerConfig.getConfig().getLocalProxyPath() == null
+				|| CrawlerConfig.getConfig().getLocalProxyPath().equals(""))
+			if (CrawlerConfig.getConfig().getCheckerType() != null
+					&& CrawlerConfig.getConfig().getCheckerType().trim().length() > 0) {
 
 				if (CrawlerConfig.getConfig().getCheckerType().equals("weka")) {
 					try {
@@ -184,15 +191,21 @@ public class BestFirst {
 
 		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			NeighborhoodPredictor.trainNeighborhoodPredictor(null);
+			HistoryPredictor.trainHistoryPredictor(null);
 		} else {
 			System.out.println("train");
-			NeighborhoodPredictor.trainNeighborhoodPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath().replace(".arff", "-bf.arff"));
+			NeighborhoodPredictor.trainNeighborhoodPredictor(
+					"n" + CrawlerConfig.getConfig().getPredictorTrainingPath().replace(".arff", "-bf.arff"));
+			HistoryPredictor.trainHistoryPredictor(
+					"h" + CrawlerConfig.getConfig().getPredictorTrainingPath().replace(".arff", "-bf.arff"));
+
 		}
 
 		softFocusedThread();
 
 		System.out.println(String.valueOf(BestFirst.rel) + "\t" + BestFirst.non);
-		NeighborhoodPredictor.backupAllNeighborhoodData("logs/history.arff");
+		NeighborhoodPredictor.backupAllNeighborhoodData("logs/neighborhood.arff");
+		HistoryPredictor.backupAllHistoryData("logs/history.arff");
 	}
 
 	public static void softFocusedThread() {
@@ -217,12 +230,10 @@ public class BestFirst {
 		for (int i = 0; i < segments.size(); i++) {
 			WebsiteSegment s = segments.get(i);
 			for (String url : s.getUrls()) {
-				queue.enQueue(new QueueObj(url, "", 100, -1, (segments.size()-1)*100.0));
+				queue.enQueue(new QueueObj(url, "", 100, -1, (segments.size() - 1) * 100.0));
 			}
 		}
-		
-		
-		
+
 		logger.info("start " + queue.size());
 
 		String host = null;
@@ -266,7 +277,7 @@ public class BestFirst {
 				score = m.getScore();
 
 			}
-			
+
 			if (url.toLowerCase().contains("moscow"))
 				score = 0;
 
@@ -308,29 +319,42 @@ public class BestFirst {
 
 			if (url.toLowerCase().contains("texas"))
 				score = 0;
-			
-//			if (url.toLowerCase().contains("anantara."))
-//				score = 0;
+
+			// if (url.toLowerCase().contains("anantara."))
+			// score = 0;
 
 			if (url.toLowerCase().contains("justrealestate"))
 				score = 0;
 
 			String seg = HttpUtils.getBasePath(url);
-			ArrayList<ClassifierOutput> dirPrediction = new ArrayList<>();
-			
-			if(qObj.getDirPrediction() != null)
-			dirPrediction.add(qObj.getDirPrediction());
-			if (score > 0.5)
-				NeighborhoodPredictor.record(seg, dirPrediction, 1, 0);
-			else
-				NeighborhoodPredictor.record(seg, dirPrediction, 0, 1);
+			ArrayList<ClassifierOutput> neighborPredictions = new ArrayList<>();
+			ArrayList<ClassifierOutput> historyPredictions = new ArrayList<>();
 
-			
-			if ((int)(rel + non) % 50==0 && CrawlerConfig.getConfig().useNeighborhoodPredictor()){
-				NeighborhoodPredictor.onlineUpdate();
+			if (qObj.getNeighborPrediction() != null)
+				neighborPredictions.add(qObj.getNeighborPrediction());
+
+			if (qObj.getHistoryPrediction() != null) {
+				historyPredictions.add(qObj.getHistoryPrediction());
 			}
 
-			
+			if (score > 0.5) {
+				NeighborhoodPredictor.record(seg, neighborPredictions, 1, 0);
+				HistoryPredictor.record(seg, historyPredictions, 1, 0);
+			} else {
+				NeighborhoodPredictor.record(seg, neighborPredictions, 0, 1);
+				HistoryPredictor.record(seg, historyPredictions, 0, 1);
+			}
+
+			if ((int) (rel + non) % 50 == 0) {
+
+				if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+					NeighborhoodPredictor.onlineUpdate();
+
+				if (CrawlerConfig.getConfig().useHistoryPredictor())
+					HistoryPredictor.onlineUpdate();
+
+			}
+
 			host = HttpUtils.getHost(url);
 			if (host != null) {
 				if (!visited.containsKey(host)) {
@@ -342,8 +366,10 @@ public class BestFirst {
 
 			addPage(score, url);
 
-			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d", score, qObj.getDepth(),
-					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size()));
+			logger.info(String.format(
+					"DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d",
+					score, qObj.getDepth(), 0, url, (int) (rel + non), progress(), qObj.getScore(), 0.0, 0.0,
+					queue.size()));
 
 			if (links == null)
 				continue;
@@ -358,45 +384,61 @@ public class BestFirst {
 				} else {
 
 					double linkscore = score;
-					ClassifierOutput result = null;
-					if (CrawlerConfig.getConfig().useNeighborhoodPredictor()) {
-						String h = HttpUtils.getHost(url);
-						if (h != null) {
-							if (!visited.containsKey(h)) {
-								continue;
-							}
+					ClassifierOutput resultN = null, resultH = null;
 
-							String targetSeg = HttpUtils.getBasePath(url);
-							result = NeighborhoodPredictor.predict(targetSeg);
-							if (visited.get(h) > 0) {
-								linkscore += result.getRelevantScore();
-							} else {
-								linkscore += 0.5;
-							}
-						} else {
+					String h = HttpUtils.getHost(url);
+					if (h != null) {
+						if (!visited.containsKey(h)) {
 							continue;
 						}
-						
-//						linkscore /= 2;
-					} 
 
-					
+						String targetSeg = HttpUtils.getBasePath(url);
+
+						if (CrawlerConfig.getConfig().useNeighborhoodPredictor()) {
+							resultN = NeighborhoodPredictor.predict(targetSeg);
+						}
+
+						if (CrawlerConfig.getConfig().useHistoryPredictor()) {
+							resultH = HistoryPredictor.predict(targetSeg);
+						}
+
+						if (visited.get(h) == 0) {
+							if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+								linkscore += 0.5;
+
+							if (CrawlerConfig.getConfig().useHistoryPredictor())
+								linkscore += 0.5;
+						} else {
+							if (resultN != null)
+								linkscore += resultN.getRelevantScore();
+
+							if (resultH != null)
+								linkscore += resultH.getRelevantScore();
+						}
+					} else {
+						continue;
+					}
+
 					if (CrawlerConfig.getConfig().isTrainingMode()) {
 						ProxyModel m = ProxyService.retreiveContentByURL(l.getLinkUrl(), null);
 						if (m != null) {
 							linkscore = m.getScore();
 							if (score > 0.5)
-								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, result));
+								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore,
+										resultN, resultH));
 							else
-								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, result));
+								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1,
+										qObj.getDistanceFromThai() + 1, linkscore, resultN, resultH));
 						}
 						continue;
 					} else {
 
 						if (score > 0.5)
-							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, result));
+							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, resultN,
+									resultH));
 						else
-							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, result));
+							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1,
+									qObj.getDistanceFromThai() + 1, linkscore, resultN, resultH));
 					}
 				}
 
@@ -442,15 +484,18 @@ public class BestFirst {
 				contentType = contentType.toLowerCase();
 			}
 
-			if (!HttpUtils.isDownloadFileType(HttpUtils.getContentType(contentType), CrawlerConfig.getConfig().getAllowFileType())) {
+			if (!HttpUtils.isDownloadFileType(HttpUtils.getContentType(contentType),
+					CrawlerConfig.getConfig().getAllowFileType())) {
 				request.abort();
 				return null;
 			}
 
 			is = entity.getContent();
 
-			String header = response.getStatusLine() + "\n" + response.getFirstHeader("Date") + "\n" + response.getFirstHeader("Server") + "\n" + response.getFirstHeader("Content-type")
-					+ " Last-modified: " + response.getFirstHeader("Last-modified") + "\n" + "Content-length: " + entity.getContentLength() + "\n\n";
+			String header = response.getStatusLine() + "\n" + response.getFirstHeader("Date") + "\n"
+					+ response.getFirstHeader("Server") + "\n" + response.getFirstHeader("Content-type")
+					+ " Last-modified: " + response.getFirstHeader("Last-modified") + "\n" + "Content-length: "
+					+ entity.getContentLength() + "\n\n";
 
 			byte[] b = writeStreamToByteArray(header, is, CrawlerConfig.getConfig().getMaxFileSize());
 

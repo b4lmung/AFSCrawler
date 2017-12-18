@@ -20,7 +20,8 @@ public class QueueObj implements Serializable {
 	private int depth;
 	private int distanceFromThai;
 	private long timeMillis;
-	private ClassifierOutput dirPrediction;
+	private ClassifierOutput neighborPrediction;
+	private ClassifierOutput historyPrediction;
 
 	public QueueObj(String url, String parentUrl,
 			int depth, int distanceFromThai, double score) {
@@ -31,11 +32,12 @@ public class QueueObj implements Serializable {
 		this.score.add(score);
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.dirPrediction = null;
+		this.setHistoryPrediction(null);
+		this.neighborPrediction = null;
 	}
 	
 	public QueueObj(String url, String parentUrl,
-			int depth, int distanceFromThai, double score, ClassifierOutput dir) {
+			int depth, int distanceFromThai, double score, ClassifierOutput neighbor, ClassifierOutput history) {
 		this.url = url;
 		this.isRelevantParent = false;
 		this.depth = depth;
@@ -43,7 +45,8 @@ public class QueueObj implements Serializable {
 		this.score.add(score);
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.dirPrediction = dir;
+		this.setHistoryPrediction(history);
+		this.neighborPrediction = neighbor;
 	}
 
 	@Override
@@ -123,11 +126,21 @@ public class QueueObj implements Serializable {
 		this.timeMillis = timeMillis;
 	}
 
-	public ClassifierOutput getDirPrediction() {
-		return dirPrediction;
+	public ClassifierOutput getNeighborPrediction() {
+		return this.neighborPrediction;
 	}
 
-	public void setDirPrediction(ClassifierOutput dirPrediction) {
-		this.dirPrediction = dirPrediction;
+	public void setNeighborPrediction(ClassifierOutput neighbor) {
+		this.neighborPrediction = neighbor;
 	}
+
+	public ClassifierOutput getHistoryPrediction() {
+		return historyPrediction;
+	}
+
+	public void setHistoryPrediction(ClassifierOutput historyPrediction) {
+		this.historyPrediction = historyPrediction;
+	}
+	
+	
 }

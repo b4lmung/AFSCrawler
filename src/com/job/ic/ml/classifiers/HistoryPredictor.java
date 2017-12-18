@@ -208,59 +208,74 @@ public class HistoryPredictor {
 	}
 
 	private static synchronized String getHistoryFeatures(DirectoryTreeNode node, boolean isRel) {
-		if (node == null)
-			return null;
+		 if (node == null)
+	            return null;
 
-		DirectoryTree tree = node.getDirectoryTree();
+	        DirectoryTree tree = node.getDirectoryTree();
 
-		/* new features */
+	     
+			/*    new features */
 
-		double slopeRel = -1;
-		double slopeNon = -1;
-		double slopeRatio = -1;
-		double avgRatio = -1;
+	        double slopeRel = -1;
+	        double slopeNon = -1;
+	        double slopeRatio = -1;
+	        double avgRatio = -1;
 
-		ArrayList<Double> relRecent = new ArrayList<>();
-		ArrayList<Double> nonRecent = new ArrayList<>();
-		ArrayList<Double> ratioRecent = new ArrayList<>();
+	        ArrayList<Double> relRecent = new ArrayList<>();
+	        ArrayList<Double> nonRecent = new ArrayList<>();
+	        ArrayList<Double> ratioRecent = new ArrayList<>();
 
-		int num = 3;
-		if (tree.getCumulativeRelPages().size() >= num) {
-			ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
-			ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
+	        int interval = 5;
+	        int numObserved = 3;
+	        
+	        if (tree.getCumulativeRelPages().size() >= interval*numObserved) {
+	            ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
+	            ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
+	            
+	            //transform
+	            ArrayList<Integer> transRel = new ArrayList<>();
+	            ArrayList<Integer> transNon = new ArrayList<>();
+	            
+	            int count=0;
+	            for(int i=tmpRel.size() - interval*numObserved; i<tmpRel.size(); i++) {
+	               	if(++count % interval == 0) {
+	               		transRel.add(tmpRel.get(i));
+	               		transNon.add(tmpNon.get(i));
+	               	}
+	            }
+	            
+	          
+	            slopeRel = transRel.get(transRel.size()-1) - transRel.get(0);
+	            slopeNon = transNon.get(transNon.size()-1) - transNon.get(0);
+	            slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(transRel.size()-1), transNon.get(transNon.size()-1)) - HttpSegmentCrawler.calcRelevanceDegree(transRel.get(0), transNon.get(0));
+	            slopeRel /= numObserved;
+	            slopeNon /= numObserved;
+	            slopeRatio /= numObserved;
+	            
+	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeRel :" + slopeRel + "\t" + transRel + tmpRel);
+	            logger.info(tree.getHostname() + node.getPathName() + "\tSlopeNon :" + slopeNon + "\t" + transNon + tmpNon);
+	            
+	            tmpRel = null;
+	            tmpNon = null;
+	            
+	            for(int i=0; i<transRel.size(); i++) {
+	            	double degree = HttpSegmentCrawler.calcRelevanceDegree(transRel.get(i), transNon.get(i));
+	                avgRatio += degree;
+	            }
+	            avgRatio /= numObserved;
+	         
+	        }
 
-			int start = tmpRel.size();
-			slopeRel = tmpRel.get(start - 1) - tmpRel.get(start - num);
-			slopeNon = tmpNon.get(start - 1) - tmpNon.get(start - num);
-			slopeRatio = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - 1), tmpNon.get(start - 1))
-					- HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(start - num), tmpNon.get(start - num));
-			slopeRel /= num;
-			slopeNon /= num;
-			slopeRatio /= num;
 
-			avgRatio = 0;
-			for (int i = start - num; i < start; i++) {
-				double sr = tmpRel.get(i) - tmpRel.get(i - 1);
-				double sn = tmpNon.get(i) - tmpNon.get(i - 1);
-				relRecent.add(sr);
-				nonRecent.add(sn);
+	        String features = String.format("%s,%s,%s,%s,%s,%s",
+	                StringUtils.cleanUrlDataForPrediction(tree.getHostname() + node.getPathName()),
+	                slopeRel != -1 ? String.valueOf(slopeRel) : "?",
+	                slopeNon != -1 ? String.valueOf(slopeNon) : "?",
+	                slopeRatio != -1 ? String.valueOf(slopeRatio) : "?",
+	                avgRatio != -1 ? String.valueOf(avgRatio) : "?",
+	                isRel ? "thai" : "non");
 
-				double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
-				ratioRecent.add(degree);
-				avgRatio += degree;
-			}
-
-			avgRatio /= num;
-
-		}
-
-		String features = String.format("%s,%s,%s,%s,%s,%s",
-				StringUtils.cleanUrlDataForPrediction(tree.getHostname() + node.getPathName()),
-				slopeRel != -1 ? String.valueOf(slopeRel) : "?", slopeNon != -1 ? String.valueOf(slopeNon) : "?",
-				slopeRatio != -1 ? String.valueOf(slopeRatio) : "?", avgRatio != -1 ? String.valueOf(avgRatio) : "?",
-				isRel ? "thai" : "non");
-
-		return features;
+	        return features;
 
 	}
 

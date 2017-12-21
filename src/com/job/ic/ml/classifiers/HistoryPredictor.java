@@ -220,12 +220,9 @@ public class HistoryPredictor {
 		double slopeRatio = -1;
 		double avgRatio = -1;
 
-		ArrayList<Double> relRecent = new ArrayList<>();
-		ArrayList<Double> nonRecent = new ArrayList<>();
-		ArrayList<Double> ratioRecent = new ArrayList<>();
 
 		int num = 3;
-		if (tree.getCumulativeRelPages().size() >= num) {
+		if (tree.getCumulativeNonSegs().size() + tree.getCumulativeRelSegs().size() >= num) {
 			ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
 			ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
 
@@ -240,13 +237,7 @@ public class HistoryPredictor {
 
 			avgRatio = 0;
 			for (int i = start - num; i < start; i++) {
-				double sr = tmpRel.get(i) - tmpRel.get(i - 1);
-				double sn = tmpNon.get(i) - tmpNon.get(i - 1);
-				relRecent.add(sr);
-				nonRecent.add(sn);
-
 				double degree = HttpSegmentCrawler.calcRelevanceDegree(tmpRel.get(i), tmpNon.get(i));
-				ratioRecent.add(degree);
 				avgRatio += degree;
 			}
 

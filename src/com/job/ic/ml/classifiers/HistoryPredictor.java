@@ -222,7 +222,7 @@ public class HistoryPredictor {
 
 
 		int num = 3;
-		if (tree.getCumulativeNonSegs().size() + tree.getCumulativeRelSegs().size() >= num) {
+		if (tree.getCumulativeRelPages().size() >= num) {
 			ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
 			ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();
 

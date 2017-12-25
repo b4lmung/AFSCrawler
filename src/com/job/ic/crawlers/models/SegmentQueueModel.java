@@ -30,7 +30,8 @@ public class SegmentQueueModel {
 	private double avgRelDegree = 0;
 	private double avgRelScore = 0;
 	private long timestamp;
-
+	
+	
 	private static boolean useDb = false;
 	
 

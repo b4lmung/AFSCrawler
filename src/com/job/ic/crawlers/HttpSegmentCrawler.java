@@ -291,8 +291,8 @@ public class HttpSegmentCrawler extends Thread {
 
 				}
 
-				logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d", score, data.getDepth(),
-						segment.getDistanceFromRelevantSeg(), s, rel + non, Status.getHarvestRate(), data.getScore(), data.getPredictionScore(), data.getAvgRelScore(), this.frontier.size()));
+				logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d", score, data.getDepth(),
+						segment.getDistanceFromRelevantSeg(), s, rel + non, Status.getHarvestRate(), data.getScore(), data.getPredictionScore(), data.getAvgRelScore(), this.frontier.size(), data.getAllSegments().size()));
 
 			}
 

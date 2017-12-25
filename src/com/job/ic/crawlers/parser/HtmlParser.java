@@ -970,6 +970,41 @@ public class HtmlParser {
 		if (s.toLowerCase().contains("4sq.com"))
 			return true;
 
+		if (s.toLowerCase().contains("bangkokdir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("chiangmaidir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("hatyaidir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("huahindir.com"))
+			return true;
+		
+		
+		if (s.toLowerCase().contains("kanchanaburidir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("khonkendir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("kohsamuidir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("krabidir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("pattayadir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("phuketdir.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("thailanddir.com"))
+			return true;
+		
+		
 		if (HttpUtils.isIp(s.toLowerCase()))
 			return true;
 

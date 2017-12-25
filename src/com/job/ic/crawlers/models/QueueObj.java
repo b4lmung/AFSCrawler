@@ -20,6 +20,7 @@ public class QueueObj implements Serializable {
 	private int depth;
 	private int distanceFromThai;
 	private long timeMillis;
+	private int inLink;
 	private ClassifierOutput dirPrediction;
 
 	public QueueObj(String url, String parentUrl,
@@ -32,6 +33,7 @@ public class QueueObj implements Serializable {
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
 		this.dirPrediction = null;
+		this.inLink = 0;
 	}
 	
 	public QueueObj(String url, String parentUrl,
@@ -44,6 +46,7 @@ public class QueueObj implements Serializable {
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
 		this.dirPrediction = dir;
+		this.inLink = 0;
 	}
 
 	@Override
@@ -75,6 +78,10 @@ public class QueueObj implements Serializable {
 		this.url = url;
 	}
 
+	public int getInLink() {
+		return this.score.size();
+	}
+	
 	public Double getScore() {
 		if(avgMode){
 			double output = 0;

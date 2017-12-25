@@ -221,7 +221,7 @@ public class HistoryPredictor {
 		double avgRatio = -1;
 
 
-		int num = 3;
+		int num = 5;
 		if (tree.getCumulativeRelPages().size() >= num) {
 			ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
 			ArrayList<Integer> tmpNon = tree.getCumulativeNonPages();

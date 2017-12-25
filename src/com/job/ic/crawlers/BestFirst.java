@@ -342,8 +342,8 @@ public class BestFirst {
 
 			addPage(score, url);
 
-			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d", score, qObj.getDepth(),
-					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size()));
+			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d", score, qObj.getDepth(),
+					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLink()));
 
 			if (links == null)
 				continue;

@@ -982,7 +982,6 @@ public class HtmlParser {
 		if (s.toLowerCase().contains("huahindir.com"))
 			return true;
 		
-		
 		if (s.toLowerCase().contains("kanchanaburidir.com"))
 			return true;
 		
@@ -1003,6 +1002,16 @@ public class HtmlParser {
 		
 		if (s.toLowerCase().contains("thailanddir.com"))
 			return true;
+		
+
+//		if (s.toLowerCase().contains("famitsu.com"))
+//			return true;
+//		
+//		if (s.toLowerCase().contains("dengekionline.com"))
+//			return true;
+//		
+//		if (s.toLowerCase().contains("4gamer.net"))
+//			return true;
 		
 		
 		if (HttpUtils.isIp(s.toLowerCase()))

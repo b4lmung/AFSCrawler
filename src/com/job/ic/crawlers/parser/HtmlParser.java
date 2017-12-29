@@ -433,7 +433,11 @@ public class HtmlParser {
 
 		// if(s.contains("hb-nippon.com"))
 		// return true;
+		
 
+		if(s.contains("javascript:"))
+			return true;
+		
 		if (s.contains("http://www.nicovideo.jp"))
 			return true;
 

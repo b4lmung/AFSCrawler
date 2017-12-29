@@ -598,8 +598,6 @@ public class CrawlerConfig implements Serializable {
 		this.useHistoryPredictor = useHistoryPredictor;
 	}
 
-
-
 	public boolean useDuplicateData() {
 		return useDuplicateData;
 	}

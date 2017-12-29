@@ -404,6 +404,9 @@ public class HttpUtils {
 
 	public static String getHost(String url) {
 		
+		if(url == null)
+			return null;
+		
 		if(!url.contains("http://"))
 			url = "http://" + url;
 		

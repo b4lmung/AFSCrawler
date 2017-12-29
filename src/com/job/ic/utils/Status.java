@@ -3,12 +3,16 @@
  */
 package com.job.ic.utils;
 
+import com.job.ic.crawlers.TrainingMultiHopSegmentCrawler;
+
 public class Status {
 
 
 	private static long SUCCESS;
 	private static long TOTAL;
 	private static long RELEVANT_PAGE;
+	private static long CUM_REL_PAGE;
+	
 	private static long IRRELEVANT_PAGE;
 	private static long lastDLTime;
 	private static long TOTAL_PAGE;
@@ -21,10 +25,12 @@ public class Status {
 	public static synchronized void addPage(boolean isRel) {
 		if (isRel) {
 			RELEVANT_PAGE++;
+			CUM_REL_PAGE++;
 		} else {
 			IRRELEVANT_PAGE++;
 		}
 		TOTAL_PAGE++;
+		
 		
 		setLastDLTime(System.currentTimeMillis());
 	}
@@ -33,7 +39,7 @@ public class Status {
 		if (TOTAL == 0) {
 			return "0.0";
 		}
-		return String.format("From [%d / %d] = %.2f\tHV:\t%s", SUCCESS, TOTAL, SUCCESS * 100.0D / TOTAL, getHarvestRate());
+		return String.format("From [%d / %d] = %.2f\tHV:\t%s\tCumRelPage:%d", SUCCESS, TOTAL, SUCCESS * 100.0D / TOTAL, getHarvestRate(), getCumulativeRelevantPages());
 	}
 
 	public static synchronized String getHarvestRate() {
@@ -74,8 +80,17 @@ public class Status {
 		return TOTAL;
 	}
 
-	public static void setTOTAL(long tOTAL) {
-		TOTAL = tOTAL;
+	public static synchronized long getRelevantPages() {
+		return RELEVANT_PAGE;
+	}
+	
+	public static synchronized long getCumulativeRelevantPages() {
+		return CUM_REL_PAGE;
+	}
+	
+	
+	public static void setTOTAL(long total) {
+		TOTAL = total;
 	}
 
 }

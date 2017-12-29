@@ -626,42 +626,31 @@ public class FileUtils {
 	// return null;
 	// }
 
-	public static LinkedList<String[]> importQueueFromFile(String filepath, HashSet<String> limit) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)))) {
-			String tmp;
-			LinkedList<String[]> queue = new LinkedList<String[]>();
-			LinkedList<String> ll = new LinkedList<String>();
 
-			String[] tmpArr;
-			String ss;
-			while (br.ready()) {
-				tmp = br.readLine();
-				ss = HttpUtils.getBasePath(tmp.split("\t")[0]);
+	public static LinkedList<String[]> importQueueFromFile(String filepath, HashSet<String> limit) {
+		LinkedList<String[]> queue = new LinkedList<String[]>();
+		LinkedList<String> ll = new LinkedList<String>();
+
+		try {
+			for (String line : FileUtils.readFile(filepath)) {
+				if(line.equals("=="))
+					continue;
+				
+				String[] urls = line.split("\t");
+				String ss = HttpUtils.getBasePath(urls[0]);
 
 				if (ss != null && limit != null && limit.contains(ss.toLowerCase()))
 					continue;
 
-				if (!tmp.trim().equals("==")) {
-					ll.add(tmp);
-				} else {
-					if (ll.size() > 0) {
-						tmpArr = new String[ll.size()];
-						queue.add(ll.toArray(tmpArr));
-					}
-					ll = null;
-					ll = new LinkedList<String>();
-				}
-
+				queue.add(urls);
 			}
-
+			
 			return queue;
-
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
 		return null;
 	}
-
 	// public static void exportQueue(String filepath, ArrayList<String[]> t) {
 	// try (BufferedWriter bw = FileUtils.getBufferedFileWriter(filepath)) {
 	// for (String[] seg : t) {

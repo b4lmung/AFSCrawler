@@ -20,7 +20,6 @@ import com.job.ic.crawlers.daos.UrlDb;
 import com.job.ic.crawlers.models.CrawlerConfig;
 import com.job.ic.crawlers.models.LinksModel;
 import com.job.ic.crawlers.models.PageObject;
-import com.job.ic.crawlers.sites.Crawler;
 import com.job.ic.nlp.services.Checker;
 import com.job.ic.utils.HttpUtils;
 
@@ -186,7 +185,7 @@ public class HtmlParser {
 				output.add(m);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info(e.getCause() + "\t" + e.getMessage());
 		} finally {
 			sc = null;
 			l.clear();
@@ -450,6 +449,12 @@ public class HtmlParser {
 
 		if (s.toLowerCase().contains("hoteltravel."))
 			return true;
+		
+		if (s.toLowerCase().contains("phi-phi.com"))
+			return true;
+		if (s.toLowerCase().contains("kohlanta-hotels.com"))
+			return true;
+		
 		
 		if (s.toLowerCase().contains("thaiwebsites.com"))
 			return true;
@@ -1004,14 +1009,17 @@ public class HtmlParser {
 			return true;
 		
 
-//		if (s.toLowerCase().contains("famitsu.com"))
-//			return true;
-//		
-//		if (s.toLowerCase().contains("dengekionline.com"))
-//			return true;
-//		
-//		if (s.toLowerCase().contains("4gamer.net"))
-//			return true;
+		if (s.toLowerCase().contains("famitsu.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("dengekionline.com"))
+			return true;
+		
+		if (s.toLowerCase().contains("4gamer.net"))
+			return true;
+		
+		if (s.toLowerCase().contains("rakuten."))
+			return true;
 		
 		
 		if (HttpUtils.isIp(s.toLowerCase()))

@@ -42,7 +42,6 @@ import com.job.ic.crawlers.models.CrawlerConfig;
 import com.job.ic.crawlers.models.SegmentFrontier;
 import com.job.ic.crawlers.models.SegmentQueueModel;
 import com.job.ic.crawlers.models.WebsiteSegment;
-import com.job.ic.crawlers.sites.Crawler;
 import com.job.ic.extraction.FeaturesExtraction;
 import com.job.ic.ml.classifiers.AccuracyTracker;
 import com.job.ic.ml.classifiers.NeighborhoodPredictor;
@@ -113,7 +112,8 @@ public class HttpCrawler {
 
 			remain = sv.getTaskCount() - sv.getCompletedTaskCount();
 
-			if (FeaturesCollectors.getCountFin() != 0 && FeaturesCollectors.getCountFin() % Math.abs(CrawlerConfig.getConfig().getUpdateInterval()) == 0 && FeaturesCollectors.getCountFin() != previous) {
+			if (FeaturesCollectors.getCountFin() != 0 && FeaturesCollectors.getCountFin() % Math.abs(CrawlerConfig.getConfig().getUpdateInterval()) == 0
+					&& FeaturesCollectors.getCountFin() != previous) {
 				previous = FeaturesCollectors.getCountFin();
 				while (remain != 0) {
 					try {
@@ -140,8 +140,8 @@ public class HttpCrawler {
 					sv.shutdownNow();
 					mgr.closeIdleConnections(CrawlerConfig.getConfig().getConnMgrTimeout(), TimeUnit.MILLISECONDS);
 					mgr.closeExpiredConnections();
-//					logger.info("crawler is not responsed for 90 mins, program will exit now");
-//					break;
+					// logger.info("crawler is not responsed for 90 mins, program will exit now");
+					// break;
 				}
 
 				if (remain > CrawlerConfig.getConfig().getNumThreads() * 2) {
@@ -194,7 +194,7 @@ public class HttpCrawler {
 	}
 
 	private void cleanUp() {
-		
+
 		logger.info("cleaning up");
 		FeaturesCollectors.exportPredictionResult("logs/prediction_result.txt");
 
@@ -218,15 +218,14 @@ public class HttpCrawler {
 		// WebsiteSegmentDb.close();
 		PredictorPool.shutdown();
 		PredictorPoolMulti.shutdown();
-		
+
 		System.exit(0);
 	}
 
 	private void onlineUpdateSingle() {
 		NeighborhoodPredictor.onlineUpdate();
 		HistoryPredictor.onlineUpdate();
-		
-		
+
 		FeaturesCollectors.backupAllFeatures("logs/all.arff");
 		FeaturesCollectors.backupAllFeaturesWithoutFilter("logs/all_not_filtered.arff");
 
@@ -263,7 +262,7 @@ public class HttpCrawler {
 	private void onlineUpdateMulti() {
 		NeighborhoodPredictor.onlineUpdate();
 		HistoryPredictor.onlineUpdate();
-		
+
 		FeaturesCollectors.backupAllFeatures("logs/all.arff");
 		FeaturesCollectors.backupAllFeaturesWithoutFilter("logs/all_not_filtered.arff");
 
@@ -375,7 +374,7 @@ public class HttpCrawler {
 					}
 				});
 
-				Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslsf)
+				Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslsf)
 						.register("http", new PlainConnectionSocketFactory()).build();
 				mgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 
@@ -439,17 +438,15 @@ public class HttpCrawler {
 
 		logger.info("training the predictor");
 
-		if(CrawlerConfig.getConfig().isTrainingMode()) {
+		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			NeighborhoodPredictor.trainNeighborhoodPredictor(null);
 			HistoryPredictor.trainHistoryPredictor(null);
-		}
-		else {
+		} else {
 			NeighborhoodPredictor.trainNeighborhoodPredictor("n" + CrawlerConfig.getConfig().getPredictorTrainingPath());
-			
+
 			HistoryPredictor.trainHistoryPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath());
 		}
-		
-		
+
 		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			String[] tmp = FileUtils.readResourceFile("/resources/classifiers/online_initial.arff");
 			FileUtils.writeTextFile("init.arff", tmp, false);
@@ -461,16 +458,13 @@ public class HttpCrawler {
 		} else {
 
 			String filename = CrawlerConfig.getConfig().getPredictorTrainingPath();
-			if (filename.trim().equals("")) {
-				logger.error("No input training path");
-				System.exit(1);
-			}
-
-			if (this.isMulti) {
-				filename = filename.substring(0, filename.lastIndexOf("."));
-				PredictorPoolMulti.trainPredictor(filename + "_rel.arff", filename + "_non.arff");
-			} else {
-				PredictorPool.trainPredictor(CrawlerConfig.getConfig().getPredictorTrainingPath());
+			if (!filename.trim().equals("")) {
+				if (this.isMulti) {
+					filename = filename.substring(0, filename.lastIndexOf("."));
+					PredictorPoolMulti.trainPredictor(filename + "_rel.arff", filename + "_non.arff");
+				} else {
+					PredictorPool.trainPredictor(CrawlerConfig.getConfig().getPredictorTrainingPath());
+				}
 			}
 
 		}

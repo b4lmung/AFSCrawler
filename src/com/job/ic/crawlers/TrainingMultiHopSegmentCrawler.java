@@ -20,7 +20,8 @@ public class TrainingMultiHopSegmentCrawler {
 	private static Logger logger = Logger.getLogger(TrainingMultiHopSegmentCrawler.class);
 	public static boolean flagServiceStop = false;
 	public static int c = 0;
-
+	public static int maxRelevant = -1; 
+	
 	private static String dbPath = "db-train-estate-seg/";
 	private static String dlPath = "dl-tmp";
 	private static String seeds = "back-estate-s.txt";
@@ -36,11 +37,11 @@ public class TrainingMultiHopSegmentCrawler {
 
 	/**** Please configure this before you run it ****/
 	// TODO: set it as true if you want to use page classifier to check web page
-	public static boolean usePageClassifier = false;
+	public static boolean usePageClassifier = true;
 	public static boolean extractFrontier = true;
 
 	private static int start =0;
-	private static int end = 2;
+	private static int end = 10;
 
 	// test set = 0, 4  (//estate =5 เพราะ ข้อมูลน้อยมากไม่ถึงแสนเพจ)
 	// train set = 0, 2
@@ -50,7 +51,9 @@ public class TrainingMultiHopSegmentCrawler {
 		dlPath = args[1];
 		seeds = args[2];
 //		
-		if(args.length > 3){
+		if(args.length == 5) {
+			maxRelevant = Integer.parseInt(args[3]);
+		}else if(args.length == 5){
 			start = Integer.parseInt(args[3]);
 			end = Integer.parseInt(args[4]);
 		}

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-import com.job.ic.crawlers.HttpCrawler;
 import com.job.ic.crawlers.daos.UrlDAO;
 import com.job.ic.crawlers.models.CrawlerConfig;
 import com.job.ic.crawlers.models.PageObject;
@@ -17,6 +16,7 @@ import com.job.ic.utils.HttpUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -30,7 +30,7 @@ public class SocketHTTPFetcher {
 	}
 
 	private static Logger logger = Logger.getLogger(SocketHTTPFetcher.class);
-	
+
 	public PageObject download(String url, UrlDAO urlDao) {
 
 		PageObject fp = null;
@@ -40,41 +40,48 @@ public class SocketHTTPFetcher {
 		if (url.indexOf("http://") < 0) {
 			url = "http://" + url;
 		}
-		
-		
-		
-		if(urlDao != null && urlDao.checkAndAddUrl(url, true)){
-			//already downloaded
-//			System.out.println("already downloaded");
+
+		if (urlDao != null && urlDao.checkAndAddUrl(url, true)) {
 			return null;
 		}
-		
+
 		HttpGet request = null;
 		HttpEntity entity = null;
-		CloseableHttpResponse  response = null;
-		try {
-			// Prepare request message
-			request = new HttpGet(url);
+		CloseableHttpResponse response = null;
+		String encoding = "null";
+		// Prepare request message
+		request = new HttpGet(url);
 
+		try {
 			// Get response
 			response = client.execute(request);
 
 			int status = response.getStatusLine().getStatusCode();
 			// System.out.println(status);
 			if (status != 200 && status != 302) {
-//				System.out.println("status");
+				HttpClientUtils.closeQuietly(response);
+				EntityUtils.consume(entity);
 				return null;
 			}
-			
+
 			entity = response.getEntity();
 
 			String contentType = entity.getContentType().getValue();
 			if (contentType != null) {
 				contentType = contentType.toLowerCase();
+				int t = contentType.indexOf("charset=");
+				if (t >= 0) {
+					encoding = contentType.substring(t + 8);
+					contentType = contentType.substring(0, t);
+				} else {
+					encoding = "null";
+				}
 			}
 
 			if (!HttpUtils.isDownloadFileType(HttpUtils.getContentType(contentType), CrawlerConfig.getConfig().getAllowFileType())) {
-//				System.out.println("not allowed");
+				HttpClientUtils.closeQuietly(response);
+				EntityUtils.consume(entity);
+
 				return null;
 			}
 
@@ -84,66 +91,29 @@ public class SocketHTTPFetcher {
 					+ " Last-modified: " + response.getFirstHeader("Last-modified") + "\n" + "Content-length: " + entity.getContentLength() + "\n\n";
 
 			b = writeStreamToByteArray(header, is, CrawlerConfig.getConfig().getMaxFileSize());
-			
-			if (b == null) {
-//				System.out.println("null");
-				return null;
-			}
 
 			is.close();
-			
-//			if(!urlDao.downloaded(url))
-//				return null;
-			
-			String encoding = "null";
-			int t = contentType.indexOf("charset=");
-			if (t >= 0) {
-				encoding = contentType.substring(t + 8);
-				contentType = contentType.substring(0, t);
-			} else {
-				encoding = "null";
-			}
-
 			fp = new PageObject(b, contentType, url, -1, encoding, 0, 0);
-
-			try {
-				if (CrawlerConfig.getConfig().getWaitTime() != 0) {
-					Thread.sleep(r.nextInt(((int) CrawlerConfig.getConfig().getWaitTime()) / 1000) * 1000);
-				}
-			} catch (InterruptedException e1) {
-				logger.error(e1.getMessage());
-			}
-
-			response.close();
 		} catch (Exception e) {
-			logger.error(e.getMessage() + "\t" + url);
-//			e.printStackTrace();
+			logger.info(e + "\t" + e.getMessage() + "\t" + e.getCause());
 		} finally {
-
-			if(response != null)
-				try {
-					response.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			
-			if (request != null) {
-				request.releaseConnection();
-				request.abort();
-				request = null;
-			}
-			
-			if(entity != null){
+			if (entity != null)
 				try {
 					EntityUtils.consume(entity);
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			HttpClientUtils.closeQuietly(response);
+
+		}
+
+		try {
+			if (CrawlerConfig.getConfig().getWaitTime() != 0) {
+				Thread.sleep(r.nextInt(((int) CrawlerConfig.getConfig().getWaitTime()) / 1000) * 1000);
 			}
-			
-			b = null;
-			is = null;
+		} catch (InterruptedException e1) {
+			logger.error(e1.getMessage());
 		}
 
 		return fp;
@@ -200,27 +170,27 @@ public class SocketHTTPFetcher {
 			// e.printStackTrace();
 			logger.error(e.getMessage());
 		} finally {
-			if(response != null)
+			if (response != null)
 				try {
 					response.close();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-			
+
 			if (request != null) {
 				request.releaseConnection();
 				request.abort();
 				request = null;
 			}
 
-			if(entity != null)
+			if (entity != null)
 				try {
 					EntityUtils.consume(entity);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			
+
 			b = null;
 			is = null;
 		}
@@ -236,12 +206,12 @@ public class SocketHTTPFetcher {
 			int n;
 
 			while ((n = fis.read(buffer)) != -1) {
-				
+
 				tmp.write(buffer, 0, n);
-				if(tmp.size() > limit){
+				if (tmp.size() > limit) {
 					return null;
 				}
-				
+
 				if (Thread.currentThread().isInterrupted())
 					break;
 			}
@@ -251,7 +221,7 @@ public class SocketHTTPFetcher {
 			tmp.close();
 			return buffer;
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 

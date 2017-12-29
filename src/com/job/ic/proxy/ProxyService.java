@@ -19,7 +19,6 @@ import com.job.ic.crawlers.daos.ProxyDb;
 import com.job.ic.crawlers.daos.UrlDAO;
 import com.job.ic.crawlers.daos.UrlDb;
 import com.job.ic.crawlers.models.CrawlerConfig;
-import com.job.ic.crawlers.sites.Crawler;
 import com.job.ic.extraction.FeaturesExtraction;
 import com.job.ic.ml.classifiers.PageClassifier;
 import com.job.ic.ml.classifiers.ResultClass;
@@ -51,8 +50,8 @@ public class ProxyService {
 //		getAll();
 //		ProxyService.terminateProxy();
 
-		CrawlerConfig.getConfig().setPageModel("page-baseball.arff");
-		CrawlerConfig.getConfig().setTargetLang("ja");
+//		CrawlerConfig.getConfig().setPageModel("page-baseball.arff");
+//		CrawlerConfig.getConfig().setTargetLang("ja");
 		net.htmlparser.jericho.Config.LoggerProvider = LoggerProvider.DISABLED;
 		ProxyService.importToProxy(args[0], args[1]);
 

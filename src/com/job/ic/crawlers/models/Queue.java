@@ -60,8 +60,8 @@ public class Queue implements Serializable {
 	}
 
 	public synchronized QueueObj deQueue() {
-		QueueObj qo = ll.poll();
 		if (ll.size() > 0) {
+			QueueObj qo = ll.poll();
 			db.remove(qo);
 			return qo;
 		} else {

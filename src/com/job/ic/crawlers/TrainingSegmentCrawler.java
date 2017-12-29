@@ -74,6 +74,11 @@ public class TrainingSegmentCrawler extends Thread {
 		SocketHTTPFetcher hp = new SocketHTTPFetcher(TrainingHttpCrawler.client);
 		ArrayList<LinksModel> destLinks = new ArrayList<>();
 
+		if(TrainingMultiHopSegmentCrawler.usePageClassifier && TrainingMultiHopSegmentCrawler.maxRelevant > 0 && TrainingMultiHopSegmentCrawler.maxRelevant > Status.getCumulativeRelevantPages()) {
+			logger.info("#Relevant pages exceed the threshold --> Exiting");
+			return;
+		}
+		
 		try {
 			String country = null;
 			int thai = 0;
@@ -137,11 +142,9 @@ public class TrainingSegmentCrawler extends Thread {
 				// Start crawling
 
 				// crawling loop
-
 				int k, window = 0;
-
 				try {
-
+					
 					obj = new QueueObj(HttpUtils.getStaticUrl(url), null, 0, 0, 1.0f);
 
 					if (obj.getUrl() == null)
@@ -227,6 +230,8 @@ public class TrainingSegmentCrawler extends Thread {
 						fp = null;
 					}
 
+					
+					
 				} catch (Exception e) {
 
 					e.printStackTrace();

@@ -40,19 +40,12 @@ public class ParseLog {
 
 		}
 
-		int i = 0;
-
+		
 		try {
 			
-			BufferedWriter bw = FileUtils.getBufferedFileWriter("output"+count + ".txt");
+			BufferedWriter bw = FileUtils.getBufferedFileWriter("output.txt");
 
 			for (String host : dlhosts.keySet()) {
-
-				if (i++ % 120 == 0) {
-					count++;
-					bw.close();
-					bw = FileUtils.getBufferedFileWriter("output"+count + ".txt");
-				}
 
 				ArrayList<String> urls = dlhosts.get(host);
 				if (urls.size() > 300)
@@ -63,6 +56,8 @@ public class ParseLog {
 				bw.write("\n");
 
 			}
+			
+			bw.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 import com.job.ic.crawlers.daos.ResultDb;
 import com.job.ic.crawlers.models.CrawlerConfig;
 import com.job.ic.crawlers.models.WebsiteSegment;
+import com.job.ic.ml.classifiers.PageClassifier;
+import com.job.ic.nlp.services.Checker;
 import com.job.ic.proxy.ProxyService;
 import com.job.ic.utils.FileUtils;
 import com.job.ic.utils.SegmentExtractor;
@@ -51,7 +53,7 @@ public class TrainingMultiHopSegmentCrawler {
 		dlPath = args[1];
 		seeds = args[2];
 //		
-		if(args.length == 5) {
+		if(args.length == 4) {
 			maxRelevant = Integer.parseInt(args[3]);
 		}else if(args.length == 5){
 			start = Integer.parseInt(args[3]);
@@ -72,10 +74,27 @@ public class TrainingMultiHopSegmentCrawler {
 		if (!FileUtils.exists(dbPath))
 			FileUtils.mkdir(dbPath);
 
+		Checker checker = null;
+		try {
+			if(CrawlerConfig.getConfig().getLocalProxyPath().equals("") && TrainingMultiHopSegmentCrawler.usePageClassifier)
+				checker = new PageClassifier();
+			else{
+				checker = new Checker() {
+					@Override
+					public float checkHtmlContent(byte[] content) {
+						return 0;
+					}
+				};
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			System.exit(1);
+		}
 	
 		for (int i = start; i <= end; i++) {
 			try {
-				test(i);
+				test(i, checker);
 				c = i;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -87,7 +106,7 @@ public class TrainingMultiHopSegmentCrawler {
 
 	}
 
-	public static void test(int hop) throws Exception {
+	public static void test(int hop, Checker checker) throws Exception {
 //		CrawlerConfig.loadConfig("crawler.conf");
 		// CrawlerConfig.getConfig().setNumThreads(24);
 
@@ -140,7 +159,7 @@ public class TrainingMultiHopSegmentCrawler {
 		else
 			queue = FileUtils.readSegmentFile("dest-from-" + (hop - 1) + ".txt");
 		
-		TrainingHttpCrawler.runCrawler(queue, CrawlerConfig.getConfig().getNumThreads());
+		TrainingHttpCrawler.runCrawler(queue, CrawlerConfig.getConfig().getNumThreads(), checker);
 		
 		logger.info("extracting frontier");
 		if (extractFrontier) {

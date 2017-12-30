@@ -100,6 +100,9 @@ public class HMMCrawler {
 
 	public static void main(String[] args) throws Exception {
 		 
+		System.out.println("Args: [topic {estate,diving,tourism,gaming,baseball}]");
+		path = args[0];
+		
 		// train();
 		// estate
 		

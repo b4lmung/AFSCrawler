@@ -81,7 +81,6 @@ public class SocketHTTPFetcher {
 			if (!HttpUtils.isDownloadFileType(HttpUtils.getContentType(contentType), CrawlerConfig.getConfig().getAllowFileType())) {
 				HttpClientUtils.closeQuietly(response);
 				EntityUtils.consume(entity);
-
 				return null;
 			}
 
@@ -92,8 +91,16 @@ public class SocketHTTPFetcher {
 
 			b = writeStreamToByteArray(header, is, CrawlerConfig.getConfig().getMaxFileSize());
 
+			if(b == null) {
+				HttpClientUtils.closeQuietly(response);
+				EntityUtils.consume(entity);
+				return null;
+			}
+			
 			is.close();
 			fp = new PageObject(b, contentType, url, -1, encoding, 0, 0);
+			
+			
 		} catch (Exception e) {
 			logger.info(e + "\t" + e.getMessage() + "\t" + e.getCause());
 		} finally {

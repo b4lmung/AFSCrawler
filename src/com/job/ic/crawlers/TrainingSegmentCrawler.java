@@ -74,17 +74,17 @@ public class TrainingSegmentCrawler extends Thread {
 		SocketHTTPFetcher hp = new SocketHTTPFetcher(TrainingHttpCrawler.client);
 		ArrayList<LinksModel> destLinks = new ArrayList<>();
 
-		if(TrainingMultiHopSegmentCrawler.usePageClassifier && TrainingMultiHopSegmentCrawler.maxRelevant > 0 && TrainingMultiHopSegmentCrawler.maxRelevant > Status.getCumulativeRelevantPages()) {
-			logger.info("#Relevant pages exceed the threshold --> Exiting");
+		if (TrainingMultiHopSegmentCrawler.usePageClassifier && TrainingMultiHopSegmentCrawler.maxRelevant > 0 
+				&& TrainingMultiHopSegmentCrawler.maxRelevant < Status.getCumulativeRelevantPages()) {
+			logger.info("#Relevant pages exceed the threshold --> Exiting " + TrainingMultiHopSegmentCrawler.maxRelevant + "\t" + Status.getCumulativeRelevantPages());
 			return;
 		}
-		
+
 		try {
 			String country = null;
 			int thai = 0;
 			int non = 0;
 
-			
 			// HashDb db = new HashDb();
 
 			Robotstxt r = null;
@@ -144,15 +144,17 @@ public class TrainingSegmentCrawler extends Thread {
 				// crawling loop
 				int k, window = 0;
 				try {
-					
+
 					obj = new QueueObj(HttpUtils.getStaticUrl(url), null, 0, 0, 1.0f);
 
 					if (obj.getUrl() == null)
 						continue;
 
 					// Check max page conditions for site
-//					if (CrawlerConfig.getConfig().getMaxPagePerSite() > 0 && !isCheckOnSegment && this.urlDao.countSite(obj.getUrl()) >= CrawlerConfig.getConfig().getMaxPagePerSite())
-//						break;
+					// if (CrawlerConfig.getConfig().getMaxPagePerSite() > 0 && !isCheckOnSegment &&
+					// this.urlDao.countSite(obj.getUrl()) >=
+					// CrawlerConfig.getConfig().getMaxPagePerSite())
+					// break;
 
 					if (maxPage != -1 && (thai + non) >= maxPage)
 						break;
@@ -230,19 +232,17 @@ public class TrainingSegmentCrawler extends Thread {
 						fp = null;
 					}
 
-					
-					
 				} catch (Exception e) {
 
 					e.printStackTrace();
 					logger.error(e.getCause() + ">>" + e.getMessage());
-					// System.exit(1);;
+					System.exit(1);
 				}
 
 			}
 
 			if (thai + non > 0) {
-//				logger.info("add");
+				// logger.info("add");
 				this.result.addData(new ResultModel(basePath, thai, non, relScore / (thai + non), country, extras));
 				processSegment(basePath, destLinks);
 				thai = 0;
@@ -255,7 +255,7 @@ public class TrainingSegmentCrawler extends Thread {
 		} finally {
 			this.cd.countDown();
 			// finalize
-			if(destLinks != null)
+			if (destLinks != null)
 				destLinks.clear();
 			destLinks = null;
 			seggraph = null;

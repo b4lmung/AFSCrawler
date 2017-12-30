@@ -58,7 +58,6 @@ public class TrainingHttpCrawler extends Thread {
 	
 	private static ARCFileWriter writer;
 //	public static boolean isProxy = false;
-	public static Checker checker;
 	public static ARCFileWriter getWriter(){
 		return writer;
 	}
@@ -69,28 +68,10 @@ public class TrainingHttpCrawler extends Thread {
 			writer.close();
 	}
 	
-	public static void runCrawler(ArrayList<WebsiteSegment> queue, int numThreads) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+	public static void runCrawler(ArrayList<WebsiteSegment> queue, int numThreads, Checker checker) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 		TrainingHttpCrawler.numThreads = numThreads;
 		System.setProperty("sun.net.client.defaultConnectTimeout ", String.valueOf(CrawlerConfig.getConfig().getTimeout()));
 		System.setProperty("sun.net.client.defaultReadTimeout", String.valueOf(CrawlerConfig.getConfig().getSoTimeout()));
-		
-		try {
-			if(CrawlerConfig.getConfig().getLocalProxyPath().equals("") && TrainingMultiHopSegmentCrawler.usePageClassifier)
-				checker = new PageClassifier();
-			else{
-				checker = new Checker() {
-					@Override
-					public float checkHtmlContent(byte[] content) {
-						return 0;
-					}
-				};
-			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			System.exit(1);
-		}
-		
 		
 		if (CrawlerConfig.getConfig().isAllowHttps()) {
 			SSLContextBuilder builder = SSLContexts.custom();

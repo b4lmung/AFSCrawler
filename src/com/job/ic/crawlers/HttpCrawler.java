@@ -441,13 +441,7 @@ public class HttpCrawler {
 		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			NeighborhoodPredictor.trainNeighborhoodPredictor(null);
 			HistoryPredictor.trainHistoryPredictor(null);
-		} else {
-			NeighborhoodPredictor.trainNeighborhoodPredictor("n" + CrawlerConfig.getConfig().getPredictorTrainingPath());
-
-			HistoryPredictor.trainHistoryPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath());
-		}
-
-		if (CrawlerConfig.getConfig().isTrainingMode()) {
+			
 			String[] tmp = FileUtils.readResourceFile("/resources/classifiers/online_initial.arff");
 			FileUtils.writeTextFile("init.arff", tmp, false);
 
@@ -455,8 +449,10 @@ public class HttpCrawler {
 				PredictorPoolMulti.trainPredictor("init.arff", "init.arff");
 			else
 				PredictorPool.trainPredictor("init.arff");
+			
 		} else {
-
+			NeighborhoodPredictor.trainNeighborhoodPredictor("n" + CrawlerConfig.getConfig().getPredictorTrainingPath());
+			HistoryPredictor.trainHistoryPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath());
 			String filename = CrawlerConfig.getConfig().getPredictorTrainingPath();
 			if (!filename.trim().equals("")) {
 				if (this.isMulti) {
@@ -468,6 +464,7 @@ public class HttpCrawler {
 			}
 
 		}
+
 
 		FileUtils.writeTextFile("logs/all.arff", FeaturesExtraction.getHeader(), false);
 		FileUtils.writeTextFile("logs/all_not_filtered.arff", FeaturesExtraction.getHeader(), false);

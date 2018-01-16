@@ -356,7 +356,7 @@ public class NeighborhoodPredictor {
 
 		String path = CrawlerConfig.getConfig().getPredictorTrainingPath();
 		if (path != null || path.trim().length() != 0) {
-			path = "h" + path;
+			path = "n" + path;
 			trainNeighborhoodPredictor(path);
 		}
 	}
@@ -377,7 +377,7 @@ public class NeighborhoodPredictor {
 		}
 
 		// history
-		logger.info("=========History==========");
+		logger.info("=========Neighborhood==========");
 
 		String algo = "weka.classifiers.bayes.NaiveBayesUpdateable";
 		String option = null;
@@ -385,7 +385,10 @@ public class NeighborhoodPredictor {
 		// algo = "weka.classifiers.lazy.IBk";
 		// option = "-K " + 3 + " -W 0";
 
-		int[] rm = new int[] { 1 };
+		int[] rm = new int[] {1};
+	
+//		logger.info("Remove all neighborhood feature except website relevancy");
+//		int[] rm = new int[] { 1,3,4,5,6,7,8,9,10,11};
 		neighborhoodPredictor = new WekaClassifier(algo, option, 1.0);
 		// String[] tmp =
 		// FileUtils.readResourceFile("/resources/classifiers/history_initial.arff");

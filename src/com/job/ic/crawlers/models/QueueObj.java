@@ -78,8 +78,8 @@ public class QueueObj implements Serializable {
 		this.url = url;
 	}
 
-	public int getInLink() {
-		return this.score.size();
+	public ArrayList<Double> getInLinkScores() {
+		return this.score;
 	}
 	
 	public Double getScore() {

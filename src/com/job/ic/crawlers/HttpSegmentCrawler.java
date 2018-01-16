@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.archive.crawler.datamodel.RobotsDirectives;
@@ -189,7 +190,7 @@ public class HttpSegmentCrawler extends Thread {
 
 			// sort url by number of relevant tokens found in url
 			Collections.sort(segment.getUrls(), (s1, s2) -> -1 * Integer.compare(cntTk.get(s1), cntTk.get(s2)));
-			
+
 			String order = "";
 			for (String s : segment.getUrls()) {
 
@@ -248,15 +249,15 @@ public class HttpSegmentCrawler extends Thread {
 
 					if (Checker.getResultClass(score) == ResultClass.RELEVANT) {
 						order += "1";
-						
+
 						rel++;
 						nonThreshold = 0;
-						
+
 						Status.addPage(true);
 
 					} else {
 						order += "0";
-						
+
 						non++;
 						nonThreshold++;
 						Status.addPage(false);
@@ -291,13 +292,15 @@ public class HttpSegmentCrawler extends Thread {
 
 				}
 
-				logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d", score, data.getDepth(),
-						segment.getDistanceFromRelevantSeg(), s, rel + non, Status.getHarvestRate(), data.getScore(), data.getPredictionScore(), data.getAvgRelScore(), this.frontier.size(), data.getAllSegments().size()));
+				logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d", score, data.getDepth(),
+						segment.getDistanceFromRelevantSeg(), s, rel + non, Status.getHarvestRate(), data.getScore(), data.getPredictionScore(), data.getAvgRelScore(), this.frontier.size()));
 
 			}
 
 			if (rel + non > 0) {
-				logger.info("Finished downloading\t" + segment.getSegmentName() + "\tRel:\t" + rel + "\tNon:\t" + non + "\tTotal:\t" + (rel + non) + "\tPredicted:\t" + data.getPredictionScore() + "\tCrawlingOrder:\t" + order);
+				logger.info("Finished downloading\t" + segment.getSegmentName() + "\tRel:\t" + rel + "\tNon:\t" + non + "\tTotal:\t" + (rel + non) + "\tPredicted:\t" + data.getPredictionScore()
+						+ "\tCrawlingOrder:\t" + order + "\tInLink:\t" + data.getAllSegments().size() + "\t"
+						+ data.getAllSegments().stream().map(a -> String.valueOf(a.getSrcRelDegree())).collect(Collectors.toList()));
 				finishedTask(data, rel, non);
 				processSegment(segment, destSegments, results);
 			}
@@ -440,14 +443,14 @@ public class HttpSegmentCrawler extends Thread {
 			sms.add(sm);
 		}
 
-		if(CrawlerConfig.getConfig().isTrainingMode()){
-			
-			for(WebsiteSegment s : sms){
+		if (CrawlerConfig.getConfig().isTrainingMode()) {
+
+			for (WebsiteSegment s : sms) {
 				double score = ProxyService.estimateRelevance(s.getUrls());
-				s.setPrediction(new ClassifierOutput(score, 1-score, 1), null, null);
+				s.setPrediction(new ClassifierOutput(score, 1 - score, 1), null, null);
 				this.frontier.enQueue(s);
 			}
-		}else if (CrawlerConfig.getConfig().getPredictorTrainingPath().equals("")) {
+		} else if (CrawlerConfig.getConfig().getPredictorTrainingPath().equals("")) {
 			this.frontier.enQueue(sms);
 		} else {
 			predict(sms, frontier);
@@ -479,7 +482,6 @@ public class HttpSegmentCrawler extends Thread {
 	public synchronized void finishedTask(SegmentQueueModel input, int rel, int non) {
 		if (input == null || input.getAllSegments() == null || input.getAllSegments().size() == 0)
 			return;
-		
 
 		NeighborhoodPredictor.record(input, rel, non);
 

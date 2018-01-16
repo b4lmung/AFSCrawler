@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -342,8 +343,8 @@ public class BestFirst {
 
 			addPage(score, url);
 
-			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d", score, qObj.getDepth(),
-					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLink()));
+			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d\t%s", score, qObj.getDepth(),
+					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLinkScores().size(), qObj.getInLinkScores().stream().map(a -> String.valueOf(a)).collect(Collectors.toList())));
 
 			if (links == null)
 				continue;

@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -197,6 +198,12 @@ public class TrainingHttpCrawler extends Thread {
 		Status.setLastDLTime(System.currentTimeMillis());
 		// Wait until all threads finished
 		try {
+			
+			Thread.sleep(5000);
+			
+			if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - Status.getLastDLTime()) > 3) {
+				System.exit(0);
+			}
 			cd.await();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block

@@ -190,6 +190,10 @@ public class NeighborhoodPredictor {
 			// logger.info(CrawlerConfig.getConfig().isTrainingMode());
 			if (CrawlerConfig.getConfig().isTrainingMode())
 				return;
+			
+			if (CrawlerConfig.getConfig().getPredictorTrainingPath().trim().length() == 0)
+				return;
+			
 
 			if (CrawlerConfig.getConfig().getUpdateInterval() < 0)
 				return;
@@ -224,8 +228,8 @@ public class NeighborhoodPredictor {
 		if (features == null) {
 			return null;
 		}
-
-		if (CrawlerConfig.getConfig().isTrainingMode()) {
+		
+		if (CrawlerConfig.getConfig().isTrainingMode() || CrawlerConfig.getConfig().getPredictorTrainingPath().trim().length() == 0) {
 			ClassifierOutput output = new ClassifierOutput(0.5, 0.5, 1.0);
 			output.setFeatures(features);
 			return output;
@@ -371,6 +375,7 @@ public class NeighborhoodPredictor {
 			FileUtils.writeTextFile("logs/ntmp.arff", tmp, false);
 			path = "logs/ntmp.arff";
 		}
+		
 
 		if (!FileUtils.exists(path)) {
 			return;

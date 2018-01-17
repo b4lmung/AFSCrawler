@@ -143,6 +143,10 @@ public class HistoryPredictor {
 			// logger.info(CrawlerConfig.getConfig().isTrainingMode());
 			if (CrawlerConfig.getConfig().isTrainingMode())
 				return;
+			
+			if (CrawlerConfig.getConfig().getPredictorTrainingPath().trim().length() == 0)
+				return;
+			
 
 			if (CrawlerConfig.getConfig().getUpdateInterval() < 0)
 				return;
@@ -178,7 +182,7 @@ public class HistoryPredictor {
 			return null;
 		}
 
-		if (CrawlerConfig.getConfig().isTrainingMode()) {
+		if (CrawlerConfig.getConfig().isTrainingMode() || CrawlerConfig.getConfig().getPredictorTrainingPath().trim().length() == 0) {
 			ClassifierOutput output = new ClassifierOutput(0.5, 0.5, 1.0);
 			output.setFeatures(features);
 			return output;
@@ -365,6 +369,7 @@ public class HistoryPredictor {
 		if (!FileUtils.exists(path)) {
 			return;
 		}
+		
 
 		// history
 		logger.info("=========History==========");

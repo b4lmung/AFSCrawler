@@ -728,13 +728,13 @@ public class PredictorPool {
 			
 //		ParseLog.parsePredictorPoolLog("tmp");
 
-//		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
+		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
 		separate("all.arff");
 //		System.exit(0);
 		int k = 10;
 
 		for (int i = 0; i < 1; i++) {
-//			PredictorPoolMulti.prepareKFold("features_relSrc.arff", "features_nonSrc.arff", k, i);
+			PredictorPoolMulti.prepareKFold("features_relSrc.arff", "features_nonSrc.arff", k, i);
 			PredictorPoolMulti.testKFold(k, i + "tmp/");
 //			testKFold(k, i + "tmp/");
 		}

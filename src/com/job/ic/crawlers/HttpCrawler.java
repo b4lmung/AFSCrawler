@@ -408,6 +408,8 @@ public class HttpCrawler {
 			}
 
 		}
+		
+		logger.info("isPageMode-->\t" + CrawlerConfig.getConfig().isPageMode());
 
 		logger.info("preparing arc file writer");
 		try {

@@ -949,11 +949,13 @@ public class PredictorPoolMulti {
 		// buildTrainingFile("6tmp/", "dive.arff", 5);
 		// System.exit(0);
 
+//		separate("all.arff");
+//		System.exit(0);
 		// int k = Integer.parseInt(args[0]);
 		// int k = Integer.parseInt(args[0]);
 		int k = 3;
 		for (int i = 0; i < 10; i++)
-			prepareKFold("features_relSrc.arff", "features_nonSrc.arff", k, i);
+			prepareKFold("training_relSrc.arff", "training_nonSrc.arff", k, i);
 
 		for (int i = 0; i < 10; i++)
 			testKFold(k, i + "tmp/");

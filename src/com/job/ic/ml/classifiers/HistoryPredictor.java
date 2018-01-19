@@ -395,6 +395,12 @@ public class HistoryPredictor {
 	}
 
 	public static void main(String[] args) {
+		
+		buildTrainingFile("htourism2", "htourism.arff", 3);
+		buildTrainingFile("htourism-bf8", "htourism-page.arff", 3);
+		
+		
+		System.exit(0);
 		String training = "history.arff";
 		cleanHistoryFeature(training);
 		// System.exit(0)
@@ -815,5 +821,49 @@ public class HistoryPredictor {
 			System.out.printf("Features count: %d\t%d\tRel:\t%d\tNon:\t%d\n", i, numFeatures.get(i),
 					numFeaturesRel.get(i), numFeaturesNon.get(i));
 		}
+	}
+	
+	
+	public static void buildTrainingFile(String dirPath, String outputPath, int k) {
+
+		ArrayList<String> rel = new ArrayList<>();
+		ArrayList<String> non = new ArrayList<>();
+
+		ArrayList<String> lines;
+		for (int j = 0; j < k; j++) {
+			lines = FileUtils.readArffDataWithoutSplit(dirPath + "/history-" + j + "-rel.arff");
+			for (String s : lines) {
+				rel.add(s);
+			}
+
+			lines = FileUtils.readArffDataWithoutSplit(dirPath + "/history-" + j + "-non.arff");
+			for (String s : lines) {
+				non.add(s);
+			}
+
+		}
+
+		// logger.info(test.size() + "\t" + train.size());
+		System.out.println(rel.size() + "\t" + non.size());
+		// undersampling
+		ArrayList<String> train = FeaturesCollectors.underSampling(rel, non);
+		System.err.println(outputPath);
+		write(train, outputPath, HistoryPredictor.header);
+
+	}
+	public static void write(ArrayList<String> data, String output, String header) {
+
+		ArrayList<String> buffer = new ArrayList<String>();
+		for (int i = 0; i < data.size(); i++) {
+			buffer.add(data.get(i));
+		}
+
+		if (header != null) {
+			FileUtils.writeTextFile(output, header, false);
+			FileUtils.writeTextFile(output, buffer, true);
+		} else {
+			FileUtils.writeTextFile(output, buffer, false);
+		}
+
 	}
 }

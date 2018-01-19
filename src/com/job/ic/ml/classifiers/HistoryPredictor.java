@@ -312,7 +312,7 @@ public class HistoryPredictor {
 			if (rel.get(host).contains(data))
 				continue;
 
-			if (features.contains("?,?,?,?,?,?,"))
+			if (features.contains(",?,?,?,?,"))
 				continue;
 
 			rel.get(host).add(data);
@@ -356,7 +356,6 @@ public class HistoryPredictor {
 
 	public static void trainHistoryPredictor(String path) {
 
-		System.err.println("Training history " + useHistoryPredictor);
 		if (!useHistoryPredictor)
 			return;
 
@@ -396,8 +395,8 @@ public class HistoryPredictor {
 	}
 
 	public static void main(String[] args) {
-		String training = "htourismฃ-raw.arff";
-		// cleanDirectoryFeature(training);
+		String training = "history.arff";
+		cleanHistoryFeature(training);
 		// System.exit(0)
 
 		double max = 0, avg = 0;
@@ -405,7 +404,9 @@ public class HistoryPredictor {
 		try {
 			double result = 0;
 			for (int i = 0; i < 10; i++) {
-				result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, false);
+				result = kFold(training, "htourism" + i, true);
+				
+//				result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, false);
 				avg += result;
 				// result = kFold(training, training.replace("-raw",
 				// "").replace(".arff", "") + i, false);

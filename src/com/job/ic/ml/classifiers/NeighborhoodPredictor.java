@@ -393,7 +393,9 @@ public class NeighborhoodPredictor {
 		int[] rm = new int[] {1};
 	
 //		logger.info("Remove all neighborhood feature except website relevancy");
-//		int[] rm = new int[] { 1,3,4,5,6,7,8,9,10,11};
+//		rm = new int[] { 1,3,4,5,6,7,8,9,10,11};
+		
+		
 		neighborhoodPredictor = new WekaClassifier(algo, option, 1.0);
 		// String[] tmp =
 		// FileUtils.readResourceFile("/resources/classifiers/history_initial.arff");
@@ -649,15 +651,15 @@ public class NeighborhoodPredictor {
 		// System.out.println(StringUtils.countWordInStr("www.phuket-pride.org/,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,thai",
 		// "?"));
 
-		String training = "ntourism-bf-raw.arff";
-		// cleanDirectoryFeature(training);
+		String training = "ntourism-raw.arff";
+		cleanDirectoryFeature(training);
 
 		double max = 0;
 		int index = 0;
 		try {
 			double result = 0;
-			for (int i = 0; i < 5; i++) {
-				result = kFold(training, "n-r/" + training.replace(".arff", "").replace("-raw", "") + i, true);
+			for (int i = 0; i < 10; i++) {
+				result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, true);
 
 				// result = kFold(training, training.replace("-raw",
 				// "").replace(".arff", "") + i, false);

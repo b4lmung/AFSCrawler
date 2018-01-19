@@ -726,11 +726,11 @@ public class PredictorPool {
 //		 PredictorPoolMulti.buildTrainingFile("5tmp", "gaming.arff", 3);
 //		 PredictorPool.buildTrainingFile("5tmp", "gaming.arff", 3);
 			
-//		ParseLog.parsePredictorPoolLog("tmp");
+		ParseLog.parsePredictorPoolLog("predictor-tourism-seg/logs-predictor-single-tourism/");
 
-		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
-		separate("all.arff");
-//		System.exit(0);
+//		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
+//		separate("all.arff");
+		System.exit(0);
 		int k = 10;
 
 		for (int i = 0; i < 1; i++) {

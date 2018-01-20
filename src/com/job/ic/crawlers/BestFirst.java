@@ -45,6 +45,7 @@ import com.job.ic.crawlers.models.QueueProxyObj;
 import com.job.ic.crawlers.models.WebsiteSegment;
 import com.job.ic.crawlers.parser.HtmlParser;
 import com.job.ic.ml.classifiers.ClassifierOutput;
+import com.job.ic.ml.classifiers.HistoryPredictor;
 import com.job.ic.ml.classifiers.NeighborhoodPredictor;
 import com.job.ic.ml.classifiers.PageClassifier;
 import com.job.ic.ml.classifiers.ResultClass;
@@ -96,12 +97,11 @@ public class BestFirst {
 
 	public static String progress() {
 		double hv = rel / (rel + non);
-//		double total = rel + non;
-		hv*=100;
+		// double total = rel + non;
+		hv *= 100;
 
-		return String.format("%d\t%.3f", (int)(rel+non), hv);
+		return String.format("%d\t%.3f", (int) (rel + non), hv);
 	}
-
 
 	public static void main(final String[] args) throws Exception {
 
@@ -185,15 +185,19 @@ public class BestFirst {
 
 		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			NeighborhoodPredictor.trainNeighborhoodPredictor(null);
+			HistoryPredictor.trainHistoryPredictor(null);
 		} else {
 			System.out.println("train");
-			NeighborhoodPredictor.trainNeighborhoodPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath().replace(".arff", "-bf.arff"));
+			NeighborhoodPredictor.trainNeighborhoodPredictor("n" + CrawlerConfig.getConfig().getPredictorTrainingPath());
+			HistoryPredictor.trainHistoryPredictor("h" + CrawlerConfig.getConfig().getPredictorTrainingPath());
+
 		}
 
 		softFocusedThread();
 
 		System.out.println(String.valueOf(BestFirst.rel) + "\t" + BestFirst.non);
-		NeighborhoodPredictor.backupAllNeighborhoodData("logs/history.arff");
+		NeighborhoodPredictor.backupAllNeighborhoodData("logs/neighborhood.arff");
+		HistoryPredictor.backupAllHistoryData("logs/history.arff");
 	}
 
 	public static void softFocusedThread() {
@@ -218,17 +222,22 @@ public class BestFirst {
 		for (int i = 0; i < segments.size(); i++) {
 			WebsiteSegment s = segments.get(i);
 			for (String url : s.getUrls()) {
-				queue.enQueue(new QueueObj(url, "", 100, -1, (segments.size()-1)*100.0));
+				queue.enQueue(new QueueObj(url, "", 100, -1, (segments.size() - 1) * 100.0));
 			}
 		}
-		
-		
-		
+
 		logger.info("start " + queue.size());
 
 		String host = null;
 		HtmlParser ps = new HtmlParser();
 		int t = 0;
+
+		double sum = 1;
+		if (CrawlerConfig.getConfig().useHistoryPredictor())
+			sum++;
+
+		if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+			sum++;
 
 		while (queue.size() > 0) {
 
@@ -267,7 +276,7 @@ public class BestFirst {
 				score = m.getScore();
 
 			}
-			
+
 			if (url.toLowerCase().contains("moscow"))
 				score = 0;
 
@@ -309,29 +318,39 @@ public class BestFirst {
 
 			if (url.toLowerCase().contains("texas"))
 				score = 0;
-			
-//			if (url.toLowerCase().contains("anantara."))
-//				score = 0;
+
+			// if (url.toLowerCase().contains("anantara."))
+			// score = 0;
 
 			if (url.toLowerCase().contains("justrealestate"))
 				score = 0;
 
 			String seg = HttpUtils.getBasePath(url);
-			ArrayList<ClassifierOutput> dirPrediction = new ArrayList<>();
-			
-			if(qObj.getDirPrediction() != null)
-			dirPrediction.add(qObj.getDirPrediction());
-			if (score > 0.5)
-				NeighborhoodPredictor.record(seg, dirPrediction, 1, 0);
-			else
-				NeighborhoodPredictor.record(seg, dirPrediction, 0, 1);
+			ArrayList<ClassifierOutput> nPrediction = new ArrayList<>();
+			ArrayList<ClassifierOutput> hPrediction = new ArrayList<>();
 
-			
-			if ((int)(rel + non) % 50==0 && CrawlerConfig.getConfig().useNeighborhoodPredictor()){
-				NeighborhoodPredictor.onlineUpdate();
+			if (qObj.getNeighborhoodPrediction() != null)
+				nPrediction.addAll(qObj.getNeighborhoodPrediction());
+
+			if (qObj.getHistoryPrediction() != null)
+				hPrediction.addAll(qObj.getHistoryPrediction());
+
+			if (score > 0.5) {
+				NeighborhoodPredictor.record(seg, nPrediction, 1, 0);
+				HistoryPredictor.record(seg, hPrediction, 1, 0);
+			} else {
+				NeighborhoodPredictor.record(seg, nPrediction, 0, 1);
+				HistoryPredictor.record(seg, hPrediction, 0, 1);
 			}
 
-			
+			if ((int) (rel + non) % 100 == 0) {
+				if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+					NeighborhoodPredictor.onlineUpdate();
+
+				if (CrawlerConfig.getConfig().useHistoryPredictor())
+					HistoryPredictor.onlineUpdate();
+			}
+
 			host = HttpUtils.getHost(url);
 			if (host != null) {
 				if (!visited.containsKey(host)) {
@@ -343,8 +362,9 @@ public class BestFirst {
 
 			addPage(score, url);
 
-			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d\t%s", score, qObj.getDepth(),
-					0, url, (int)(rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLinkScores().size(), qObj.getInLinkScores().stream().map(a -> String.valueOf(a)).collect(Collectors.toList())));
+			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d\t%s", score, qObj.getDepth(), 0, url,
+					(int) (rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLinkScores().size(),
+					qObj.getInLinkScores().stream().map(a -> String.valueOf(a)).collect(Collectors.toList())));
 
 			if (links == null)
 				continue;
@@ -359,45 +379,55 @@ public class BestFirst {
 				} else {
 
 					double linkscore = score;
-					ClassifierOutput result = null;
+					ClassifierOutput nresult = null, hresult = null;
+
+					String h = HttpUtils.getHost(url);
+					if (h == null)
+						continue;
+
+					if (!visited.containsKey(h))
+						continue;
+
+					String targetSeg = HttpUtils.getBasePath(url);
+
 					if (CrawlerConfig.getConfig().useNeighborhoodPredictor()) {
-						String h = HttpUtils.getHost(url);
-						if (h != null) {
-							if (!visited.containsKey(h)) {
-								continue;
-							}
 
-							String targetSeg = HttpUtils.getBasePath(url);
-							result = NeighborhoodPredictor.predict(targetSeg);
-							if (visited.get(h) > 0) {
-								linkscore += result.getRelevantScore();
-							} else {
-								linkscore += 0.5;
-							}
+						nresult = NeighborhoodPredictor.predict(targetSeg);
+
+						if (visited.get(h) > 0) {
+							linkscore += nresult.getRelevantScore();
 						} else {
-							continue;
+							linkscore += 0.5;
 						}
-						
-//						linkscore /= 2;
-					} 
 
+					}
+
+					if (CrawlerConfig.getConfig().useHistoryPredictor()) {
+						hresult = HistoryPredictor.predict(targetSeg);
+
+						if (visited.get(h) > 0) {
+							linkscore += hresult.getRelevantScore();
+						} else {
+							linkscore += 0.5;
+						}
+					}
 					
+					linkscore /= sum;
+
 					if (CrawlerConfig.getConfig().isTrainingMode()) {
 						ProxyModel m = ProxyService.retreiveContentByURL(l.getLinkUrl(), null);
 						if (m != null) {
 							linkscore = m.getScore();
 							if (score > 0.5)
-								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, result));
+								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, nresult, hresult));
 							else
-								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, result));
+								queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, nresult, hresult));
 						}
-						continue;
 					} else {
-
 						if (score > 0.5)
-							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, result));
+							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, 0, linkscore, nresult, hresult));
 						else
-							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, result));
+							queue.enQueue(new QueueObj(l.getLinkUrl(), url, qObj.getDepth() + 1, qObj.getDistanceFromThai() + 1, linkscore, nresult, hresult));
 					}
 				}
 

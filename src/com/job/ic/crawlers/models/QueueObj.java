@@ -20,8 +20,8 @@ public class QueueObj implements Serializable {
 	private int depth;
 	private int distanceFromThai;
 	private long timeMillis;
-	private int inLink;
-	private ClassifierOutput dirPrediction;
+	private ArrayList<ClassifierOutput> neighborPredictions;
+	private ArrayList<ClassifierOutput> historyPredictions;
 
 	public QueueObj(String url, String parentUrl,
 			int depth, int distanceFromThai, double score) {
@@ -32,12 +32,12 @@ public class QueueObj implements Serializable {
 		this.score.add(score);
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.dirPrediction = null;
-		this.inLink = 0;
+		this.neighborPredictions = new ArrayList<>();
+		this.historyPredictions = new ArrayList<>();
 	}
 	
 	public QueueObj(String url, String parentUrl,
-			int depth, int distanceFromThai, double score, ClassifierOutput dir) {
+			int depth, int distanceFromThai, double score, ClassifierOutput neighborPrediction, ClassifierOutput historyPrediction) {
 		this.url = url;
 		this.isRelevantParent = false;
 		this.depth = depth;
@@ -45,8 +45,11 @@ public class QueueObj implements Serializable {
 		this.score.add(score);
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.dirPrediction = dir;
-		this.inLink = 0;
+		this.neighborPredictions = new ArrayList<>();
+		this.historyPredictions = new ArrayList<>();
+		
+		this.neighborPredictions.add(neighborPrediction);
+		this.historyPredictions.add(historyPrediction);
 	}
 
 	@Override
@@ -130,11 +133,19 @@ public class QueueObj implements Serializable {
 		this.timeMillis = timeMillis;
 	}
 
-	public ClassifierOutput getDirPrediction() {
-		return dirPrediction;
+	public ArrayList<ClassifierOutput> getNeighborhoodPrediction() {
+		return this.neighborPredictions;
 	}
 
-	public void setDirPrediction(ClassifierOutput dirPrediction) {
-		this.dirPrediction = dirPrediction;
+	public void addNeighborhoodPrediction(ClassifierOutput prediction) {
+		this.neighborPredictions.add(prediction);
+	}
+
+	public ArrayList<ClassifierOutput> getHistoryPrediction() {
+		return historyPredictions;
+	}
+
+	public void setHistoryPrediction(ClassifierOutput historyPrediction) {
+		this.historyPredictions.add(historyPrediction);
 	}
 }

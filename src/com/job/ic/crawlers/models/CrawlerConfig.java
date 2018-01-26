@@ -232,9 +232,9 @@ public class CrawlerConfig implements Serializable {
 				System.err.println("segment mode");
 			}
 			
-			if(config.isPageMode){
-				config.setPredictorTrainingPath(config.getPredictorTrainingPath().replace(".arff", "-page.arff"));
-			}
+//			if(config.isPageMode){
+//				config.setPredictorTrainingPath(config.getPredictorTrainingPath().replace(".arff", "-page.arff"));
+//			}
 			
 			if(config.isTrainingMode){
 				config.setLimitDownloadedPages(-1);

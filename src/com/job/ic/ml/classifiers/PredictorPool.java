@@ -722,21 +722,33 @@ public class PredictorPool {
 	// }
 
 	public static void main(String[] args) {
-//		 PredictorPool.buildTrainingFile("1tmp", "gaming-page.arff", 3);
-//		 PredictorPoolMulti.buildTrainingFile("5tmp", "gaming.arff", 3);
+		 PredictorPool.buildTrainingFile("1tmp", "diving.arff", 10);
+		 PredictorPoolMulti.buildTrainingFile("1tmp", "diving.arff", 10);
+		
+//		 PredictorPoolMulti.buildTrainingFile("5tmp-page", "diving-page.arff", 5);	
+//		 PredictorPool.buildTrainingFile("4tmp", "diving.arff", 5);
+ 
+		 
+//		 NeighborhoodPredictor.buildTrainingFile("neighborhood-seg", "ndiving.arff", 3);
+//		 NeighborhoodPredictor.buildTrainingFile("neighborhood-page", "ndiving-page.arff", 3);
+		
+//		 HistoryPredictor.buildTrainingFile("history-seg", "hdiving.arff", 3);
+//		 HistoryPredictor.buildTrainingFile("history-page", "hdiving-page.arff", 3);
+//		
+		 System.exit(0);
 //		 PredictorPool.buildTrainingFile("5tmp", "gaming.arff", 3);
 			
-		ParseLog.parsePredictorPoolLog("predictor-tourism-seg/logs-predictor-single-tourism/");
+//		ParseLog.parsePredictorPoolLog("predictor-tourism-seg/logs-predictor-single-tourism/");
 
-//		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
-//		separate("all.arff");
-		System.exit(0);
+		FileUtils.cleanArffData("all.arff", FeaturesExtraction.getHeader());
+		separate("all.arff");
+//		System.exit(0);
 		int k = 10;
 
-		for (int i = 0; i < 1; i++) {
-			PredictorPoolMulti.prepareKFold("features_relSrc.arff", "features_nonSrc.arff", k, i);
-			PredictorPoolMulti.testKFold(k, i + "tmp/");
-//			testKFold(k, i + "tmp/");
+		for (int i = 0; i < 10; i++) {
+//			PredictorPoolMulti.prepareKFold("features_relSrc.arff", "features_nonSrc.arff", k, i);
+//			PredictorPoolMulti.testKFold(k, i + "tmp/");
+			testKFold(k, i + "tmp/");
 		}
 		
 		ParseLog.parsePredictorPoolLog("logs");

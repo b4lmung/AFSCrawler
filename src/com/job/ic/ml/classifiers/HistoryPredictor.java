@@ -396,11 +396,11 @@ public class HistoryPredictor {
 
 	public static void main(String[] args) {
 		
-		buildTrainingFile("htourism2", "htourism.arff", 3);
-		buildTrainingFile("htourism-bf8", "htourism-page.arff", 3);
-		
-		
-		System.exit(0);
+//		buildTrainingFile("htourism2", "htourism.arff", 3);
+//		buildTrainingFile("htourism-bf8", "htourism-page.arff", 3);
+//		
+//		
+//		System.exit(0);
 		String training = "history.arff";
 		cleanHistoryFeature(training);
 		// System.exit(0)
@@ -410,7 +410,7 @@ public class HistoryPredictor {
 		try {
 			double result = 0;
 			for (int i = 0; i < 10; i++) {
-				result = kFold(training, "htourism" + i, true);
+				result = kFold(training, training.replace(".arff", "").replace("-raw", "")  + i, true);
 				
 //				result = kFold(training, training.replace(".arff", "").replace("-raw", "") + i, false);
 				avg += result;

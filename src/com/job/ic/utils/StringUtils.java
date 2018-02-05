@@ -128,6 +128,9 @@ public class StringUtils {
 		anchor = getUniqueWord(anchor);
 		anchor = StringUtils.removeSymbols(anchor);
 		
+		if(anchor.trim().equals(""))
+			return false;
+		
 		features[10] = ""; // anchor
 		features[11] = ""; // url
 		
@@ -143,8 +146,8 @@ public class StringUtils {
 
 				if (destHost != null && dupHost != null) {
 					// if hostname are similar and the set of term is equal or similar
-					if ((destHost.equals(dupHost) || c.similarity(s, destSeg) > 0.8) && (anchor.equals(d) || c.similarity(anchor, d) > 0.8)) {
-						return true;
+					if (destHost.equals(dupHost) || c.similarity(dupHost, destHost) > 0.5 && (anchor.equals(d) || c.similarity(anchor, d) > 0.8)) {
+						return true; 
 					}
 				}
 			}

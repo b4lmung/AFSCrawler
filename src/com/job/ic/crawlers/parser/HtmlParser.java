@@ -482,6 +482,8 @@ public class HtmlParser {
 		if (s.toLowerCase().contains(".hotels.com"))
 			return true;
 		
+//		if (s.toLowerCase().contains("easyday"))
+//			return true;
 		
 		if (s.toLowerCase().contains("instantthailand."))
 			return true;

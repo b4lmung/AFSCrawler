@@ -77,8 +77,10 @@ public class Test {
 		System.out.println("hello");
 		UrlDb.createEnvironment("urlDb");
 		
-		for(String s: FileUtils.readFile("site.txt")) {
-			System.out.println(s + "\t" + UrlDb.getUrlDAO().checkAndAddUrl(s, false));
+		for(String s: FileUtils.readFile("test-diving-s.txt")) {
+			String[] tmp = s.split("\t");
+			for(String t: tmp)
+				System.out.println(t + "\t" + UrlDb.getUrlDAO().checkAndAddUrl(t, false));
 		}
 		UrlDb.close();
 		

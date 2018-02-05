@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Properties;
@@ -115,7 +116,10 @@ public class FileUtils {
 		String[] d = FileUtils.readFile(filepath);
 		ArrayList<String> data = new ArrayList<String>();
 		data.add(header);
-
+		HashMap<String, ArrayList<String>> dupRelDb, dupNonDb;
+		dupRelDb = new HashMap<>();
+		dupNonDb = new HashMap<>();
+		
 		for (String s : d) {
 			if (s.startsWith("@"))
 				continue;
@@ -126,6 +130,10 @@ public class FileUtils {
 				continue;
 
 			if (s.contains("-----------------"))
+				continue;
+			
+			
+			if(shouldFilter(dupRelDb, dupNonDb, s))
 				continue;
 
 			if (s.contains("predicted"))
@@ -139,6 +147,20 @@ public class FileUtils {
 
 		FileUtils.writeTextFile(filepath, data, false);
 
+	}
+	
+	private static boolean shouldFilter(HashMap<String, ArrayList<String>> dupRelDb, HashMap<String, ArrayList<String>> dupNonDb, String feature) {
+		String[] tmp = feature.split(",");
+		boolean isRelevant = Double.parseDouble(tmp[1]) > 0.5;
+		if (isRelevant && StringUtils.isDuplicate(dupRelDb, tmp[0], tmp, tmp[10])) {
+			System.out.println("filter");
+			return true;
+		} else if (!isRelevant && StringUtils.isDuplicate(dupNonDb, tmp[0], tmp, tmp[10])) {
+			System.out.println("filter");
+			return true;
+		}
+		
+		return false;
 	}
 
 	public static ArrayList<String[]> readArffData(String filepath) {

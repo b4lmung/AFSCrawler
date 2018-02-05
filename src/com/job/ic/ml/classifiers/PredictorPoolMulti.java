@@ -323,6 +323,8 @@ public class PredictorPoolMulti {
 		FileUtils.cleanArffData(trainRelPath, FeaturesExtraction.getHeader());
 		FileUtils.cleanArffData(trainNonPath, FeaturesExtraction.getHeader());
 
+		
+		System.out.println("Preparing training rel ");
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(trainRelPath)))) {
 			ArrayList<String> rel = new ArrayList<>();
 			ArrayList<String> non = new ArrayList<>();
@@ -397,7 +399,7 @@ public class PredictorPoolMulti {
 		}
 
 		System.out.println("-------");
-
+		System.out.println("Preparing training non");
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(trainNonPath)))) {
 			ArrayList<String> rel = new ArrayList<>();
 			ArrayList<String> non = new ArrayList<>();

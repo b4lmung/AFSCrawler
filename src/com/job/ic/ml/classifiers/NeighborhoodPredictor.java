@@ -644,9 +644,9 @@ public class NeighborhoodPredictor {
 
 	public static void main(String[] args) {
 
-		buildTrainingFile("ntourism-bf9", "ntourism-page.arff", 3);
+//		buildTrainingFile("ntourism-bf9", "ntourism-page.arff", 3);
 		
-		System.exit(0);
+//		System.exit(0);
 		
 		// parseLogSeries("history.log", true);
 		// parseLogSeries("history.log", false);
@@ -656,7 +656,7 @@ public class NeighborhoodPredictor {
 		// System.out.println(StringUtils.countWordInStr("www.phuket-pride.org/,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,thai",
 		// "?"));
 
-		String training = "ntourism-raw.arff";
+		String training = "neighborhood.arff";
 		cleanDirectoryFeature(training);
 
 		double max = 0;

@@ -343,12 +343,14 @@ public class BestFirst {
 				HistoryPredictor.record(seg, hPrediction, 0, 1);
 			}
 
-			if ((int) (rel + non) % 100 == 0) {
-				if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
-					NeighborhoodPredictor.onlineUpdate();
+			if (CrawlerConfig.getConfig().getUpdateInterval() > 0) {
+				if ((int) (rel + non) % CrawlerConfig.getConfig().getUpdateInterval() == 0) {
+					if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+						NeighborhoodPredictor.onlineUpdate();
 
-				if (CrawlerConfig.getConfig().useHistoryPredictor())
-					HistoryPredictor.onlineUpdate();
+					if (CrawlerConfig.getConfig().useHistoryPredictor())
+						HistoryPredictor.onlineUpdate();
+				}
 			}
 
 			host = HttpUtils.getHost(url);
@@ -411,7 +413,7 @@ public class BestFirst {
 							linkscore += 0.5;
 						}
 					}
-					
+
 					linkscore /= sum;
 
 					if (CrawlerConfig.getConfig().isTrainingMode()) {

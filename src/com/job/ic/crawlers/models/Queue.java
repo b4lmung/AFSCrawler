@@ -54,7 +54,8 @@ public class Queue implements Serializable {
 		}else{
 			QueueObj qo = db.get(q.getUrl());
 			ll.remove(qo);
-			qo.setScore(q.getScore());
+			qo.addSrcScore(q.getSrcScores());
+			qo.updatePredictions(null, q.getHistoryPrediction());
 			ll.add(qo);
 		}
 	}

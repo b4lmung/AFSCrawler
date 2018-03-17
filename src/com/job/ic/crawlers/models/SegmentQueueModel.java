@@ -30,7 +30,7 @@ public class SegmentQueueModel {
 	private double avgRelDegree = 0;
 	private double avgRelScore = 0;
 	private long timestamp;
-	
+	private double maxRelScore = -1;
 	
 	private static boolean useDb = false;
 	
@@ -42,8 +42,9 @@ public class SegmentQueueModel {
 		this.depth = depth;
 		this.neighborhoodPredictions = new ArrayList<>();
 		this.historyPredictions = new ArrayList<>();
-		if(!useDb)
+		if(!useDb) {
 			this.segmentData = new ArrayList<WebsiteSegment>();
+		}
 		
 		addSegmentData(data, neighborhoodPrediction, historyPrediction);
 		
@@ -90,6 +91,10 @@ public class SegmentQueueModel {
 	public double getAvgRelScore() {
 		return avgRelScore / this.segmentData.size();
 	}
+	
+	public double getMaxRelScore() {
+		return this.maxRelScore;
+	}
 
 //	public void addSegmentData(ArrayList<WebsiteSegment> allSegments, ClassifierOutput dirPrediction) {
 //		for (WebsiteSegment s : allSegments)
@@ -102,6 +107,12 @@ public class SegmentQueueModel {
 			WebsiteSegmentDb.getSegmentDAO().addWebsiteSegment(segment);
 		}else{
 			this.segmentData.add(segment);
+		}
+		
+		if(this.segmentData.size() == 0) {
+			this.maxRelScore = segment.getAvgSrcRelScore();
+		}else {
+			this.maxRelScore = Math.max(this.maxRelScore, segment.getAvgSrcRelScore());
 		}
 		
 

@@ -37,7 +37,7 @@ public class HistoryPredictor {
 	private static HashMap<String, HashSet<String>> dupDb = new HashMap<>();
 	private static WekaClassifier historyPredictor = null;
 
-	private static int num = 15;
+	private static int num = 10;
 	
 	public static boolean useHistoryPredictor() {
 		return useHistoryPredictor;
@@ -226,6 +226,9 @@ public class HistoryPredictor {
 		double slopeRatio = -1;
 		double avgRatio = -1;
 
+		
+		if(tree.getCumulativeRelPages().size() < num)
+			return null;
 
 		if (tree.getCumulativeRelPages().size() >= num) {
 			ArrayList<Integer> tmpRel = tree.getCumulativeRelPages();
@@ -397,12 +400,12 @@ public class HistoryPredictor {
 
 	public static void main(String[] args) {
 		
-//		buildTrainingFile("htourism2", "htourism.arff", 3);
+		buildTrainingFile("hgaming-page6", "hgaming-page.arff", 3);
 //		buildTrainingFile("htourism-bf8", "htourism-page.arff", 3);
 //		
 //		
-//		System.exit(0);
-		String training = "history.arff";
+		System.exit(0);
+		String training = "hgaming-raw-page.arff";
 		cleanHistoryFeature(training);
 		// System.exit(0)
 

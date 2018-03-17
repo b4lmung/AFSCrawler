@@ -707,6 +707,27 @@ public class HtmlParser {
 		if (s.toLowerCase().contains("ads."))
 			return true;
 
+//		if (s.toLowerCase().contains("suparobofan.com"))
+//			return true;
+//
+//		if (s.toLowerCase().contains("gandam-musou.net"))
+//			return true;
+//
+//		if (s.toLowerCase().contains("gun-vs.com"))
+//			return true;
+//		
+//		if (s.toLowerCase().contains("gameshinzui.com"))
+//			return true;
+//		
+//
+//		if (s.toLowerCase().contains("-wiki.com"))
+//			return true;
+//		
+//
+//		if (s.toLowerCase().contains("gameiroiro.com"))
+//			return true;
+//		
+//		
 		if (s.toLowerCase().contains("boracay"))
 			return true;
 

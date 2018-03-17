@@ -11,7 +11,7 @@ import com.job.ic.ml.classifiers.ClassifierOutput;
 public class QueueObj implements Serializable {
 
 	private static boolean avgMode = false;
-	
+
 	private static final long serialVersionUID = 2294872674909725252L;
 	private String url;
 	private String parentUrl;
@@ -20,36 +20,40 @@ public class QueueObj implements Serializable {
 	private int depth;
 	private int distanceFromThai;
 	private long timeMillis;
-	private ArrayList<ClassifierOutput> neighborPredictions;
-	private ArrayList<ClassifierOutput> historyPredictions;
+	// private ArrayList<ClassifierOutput> neighborPredictions;
+	private ClassifierOutput historyPrediction;
 
-	public QueueObj(String url, String parentUrl,
-			int depth, int distanceFromThai, double score) {
+	private double maxSrcScore;
+
+	public QueueObj(String url, String parentUrl, int depth, int distanceFromThai, double srcScore) {
 		this.url = url;
 		this.isRelevantParent = false;
 		this.depth = depth;
 		this.score = new ArrayList<>();
-		this.score.add(score);
+		this.score.add(srcScore);
+		this.maxSrcScore = srcScore;
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.neighborPredictions = new ArrayList<>();
-		this.historyPredictions = new ArrayList<>();
+		// this.neighborPredictions = new ArrayList<>();
+		// this.historyPredictions = new ArrayList<>();
 	}
-	
-	public QueueObj(String url, String parentUrl,
-			int depth, int distanceFromThai, double score, ClassifierOutput neighborPrediction, ClassifierOutput historyPrediction) {
+
+	public QueueObj(String url, String parentUrl, int depth, int distanceFromThai, double srcScore, ClassifierOutput neighborPrediction, ClassifierOutput historyPrediction) {
 		this.url = url;
 		this.isRelevantParent = false;
 		this.depth = depth;
 		this.score = new ArrayList<>();
-		this.score.add(score);
+		this.score.add(srcScore);
+		this.maxSrcScore = srcScore;
 		this.setTimeMillis(System.currentTimeMillis());
 		setDistanceFromThai(distanceFromThai);
-		this.neighborPredictions = new ArrayList<>();
-		this.historyPredictions = new ArrayList<>();
-		
-		this.neighborPredictions.add(neighborPrediction);
-		this.historyPredictions.add(historyPrediction);
+		// this.neighborPredictions = new ArrayList<>();
+		// this.historyPredictions = new ArrayList<>();
+
+		// if (neighborPrediction != null)
+		// this.neighborPredictions.add(neighborPrediction);
+		if (historyPrediction != null)
+			this.historyPrediction = historyPrediction;
 	}
 
 	@Override
@@ -81,32 +85,60 @@ public class QueueObj implements Serializable {
 		this.url = url;
 	}
 
-	public ArrayList<Double> getInLinkScores() {
+	public ArrayList<Double> getSrcScores() {
 		return this.score;
 	}
-	
+
 	public Double getScore() {
-		if(avgMode){
+		if (avgMode) {
 			double output = 0;
-			for(double i: score){
-				output+=i;
+			for (double i : score) {
+				output += i;
 			}
-			
-			output/=score.size();
+
+			output /= score.size();
 			return output;
-		}else{
+		} else {
 			double max = 0;
-			for(double i: score){
-				if(max < Math.max(max, i))
-					max=i;
+			for (double i : score) {
+				if (max < Math.max(max, i))
+					max = i;
 			}
-			
-			return max;
+
+			if (CrawlerConfig.getConfig().useHistoryPredictor()) {
+				// if (this.historyPredictions.size() == 0)
+				// return (max + 0.5) / 2;
+				// else
+				// return (max + this.historyPredictions.get(this.historyPredictions.size() -
+				// 1).getRelevantScore()) / 2;
+
+				if (this.historyPrediction != null)
+					return (max + this.historyPrediction.getRelevantScore()) / 2;
+				else
+					return max;
+
+			} else {
+				return max;
+			}
 		}
 	}
 
-	public void setScore(double input) {
+	public void addSrcScore(double input) {
+		this.maxSrcScore = Math.max(maxSrcScore, input);
 		this.score.add(input);
+	}
+
+	public void addSrcScore(ArrayList<Double> input) {
+		for (Double d : input) {
+			this.maxSrcScore = Math.max(maxSrcScore, d);
+			this.score.add(d);
+		}
+	}
+
+	public void updatePredictions(ClassifierOutput nPrediction, ClassifierOutput hPrediction) {
+		// this.neighborPredictions.addAll(nPrediction);
+		// this.historyPredictions.addAll(hPrediction);
+		this.historyPrediction = hPrediction;
 	}
 
 	public void setDistanceFromThai(int distanceFromThai) {
@@ -133,19 +165,34 @@ public class QueueObj implements Serializable {
 		this.timeMillis = timeMillis;
 	}
 
-	public ArrayList<ClassifierOutput> getNeighborhoodPrediction() {
-		return this.neighborPredictions;
+	public double getHistoryScore() {
+		if (this.historyPrediction != null)
+			return this.historyPrediction.getRelevantScore();
+		return -0.5;
 	}
 
-	public void addNeighborhoodPrediction(ClassifierOutput prediction) {
-		this.neighborPredictions.add(prediction);
+	public ClassifierOutput getHistoryPrediction() {
+		return this.historyPrediction;
 	}
 
-	public ArrayList<ClassifierOutput> getHistoryPrediction() {
-		return historyPredictions;
+	public double getMaxSrcScore() {
+		// TODO Auto-generated method stub
+		return maxSrcScore;
 	}
 
-	public void setHistoryPrediction(ClassifierOutput historyPrediction) {
-		this.historyPredictions.add(historyPrediction);
-	}
+	// public ArrayList<ClassifierOutput> getNeighborhoodPrediction() {
+	// return this.neighborPredictions;
+	// }
+	//
+	// public void addNeighborhoodPrediction(ClassifierOutput prediction) {
+	// this.neighborPredictions.add(prediction);
+	// }
+	//
+	// public ArrayList<ClassifierOutput> getHistoryPrediction() {
+	// return historyPredictions;
+	// }
+	//
+	// public void setHistoryPrediction(ClassifierOutput historyPrediction) {
+	// this.historyPredictions.add(historyPrediction);
+	// }
 }

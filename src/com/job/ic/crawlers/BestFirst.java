@@ -202,7 +202,6 @@ public class BestFirst {
 
 	public static void softFocusedThread() {
 
-		HashMap<String, Integer> visited = new HashMap<>();
 		UrlDb.createEnvironment("urlDb");
 		ARCFileWriter writer = null;
 		try {
@@ -329,11 +328,11 @@ public class BestFirst {
 			ArrayList<ClassifierOutput> nPrediction = new ArrayList<>();
 			ArrayList<ClassifierOutput> hPrediction = new ArrayList<>();
 
-			if (qObj.getNeighborhoodPrediction() != null)
-				nPrediction.addAll(qObj.getNeighborhoodPrediction());
+//			if (qObj.getNeighborhoodPrediction() != null)
+//				nPrediction.addAll(qObj.getNeighborhoodPrediction());
 
 			if (qObj.getHistoryPrediction() != null)
-				hPrediction.addAll(qObj.getHistoryPrediction());
+				hPrediction.add(qObj.getHistoryPrediction());
 
 			if (score > 0.5) {
 				NeighborhoodPredictor.record(seg, nPrediction, 1, 0);
@@ -343,30 +342,21 @@ public class BestFirst {
 				HistoryPredictor.record(seg, hPrediction, 0, 1);
 			}
 
-			if (CrawlerConfig.getConfig().getUpdateInterval() > 0) {
-				if ((int) (rel + non) % CrawlerConfig.getConfig().getUpdateInterval() == 0) {
-					if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
-						NeighborhoodPredictor.onlineUpdate();
+//			if (CrawlerConfig.getConfig().getUpdateInterval() > 0) {
+//				if ((int) (rel + non) % CrawlerConfig.getConfig().getUpdateInterval() == 0) {
+//					if (CrawlerConfig.getConfig().useNeighborhoodPredictor())
+//						NeighborhoodPredictor.onlineUpdate();
+//
+//					if (CrawlerConfig.getConfig().useHistoryPredictor())
+//						HistoryPredictor.onlineUpdate();
+//				}
+//			}
 
-					if (CrawlerConfig.getConfig().useHistoryPredictor())
-						HistoryPredictor.onlineUpdate();
-				}
-			}
-
-			host = HttpUtils.getHost(url);
-			if (host != null) {
-				if (!visited.containsKey(host)) {
-					visited.put(host, 1);
-				}
-
-				visited.put(host, visited.get(host) + 1);
-			}
-
+	
 			addPage(score, url);
 
-			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d\tInLink:%d\t%s", score, qObj.getDepth(), 0, url,
-					(int) (rel + non), progress(), qObj.getScore(), 0.0, 0.0, queue.size(), qObj.getInLinkScores().size(),
-					qObj.getInLinkScores().stream().map(a -> String.valueOf(a)).collect(Collectors.toList())));
+			logger.info(String.format("DOWNLOADED\t%.2f\tDepth:%d\tDistance:%d\t%s\t%d\tHV:\t%s\tqScore:\t%.3f\tpScore:%.3f\tsrcScore:%.3f\tqSize:\t%d", score, qObj.getDepth(), 0, url,
+					(int) (rel + non), progress(), qObj.getScore(), qObj.getHistoryScore(), qObj.getMaxSrcScore(), queue.size()));
 
 			if (links == null)
 				continue;
@@ -387,34 +377,27 @@ public class BestFirst {
 					if (h == null)
 						continue;
 
-					if (!visited.containsKey(h))
-						continue;
-
 					String targetSeg = HttpUtils.getBasePath(url);
 
 					if (CrawlerConfig.getConfig().useNeighborhoodPredictor()) {
 
 						nresult = NeighborhoodPredictor.predict(targetSeg);
-
-						if (visited.get(h) > 0) {
-							linkscore += nresult.getRelevantScore();
-						} else {
-							linkscore += 0.5;
-						}
-
+//						if (nresult == null)
+//							linkscore += 0.5;
+//						else
+//							linkscore += nresult.getRelevantScore();
 					}
 
 					if (CrawlerConfig.getConfig().useHistoryPredictor()) {
 						hresult = HistoryPredictor.predict(targetSeg);
-
-						if (visited.get(h) > 0) {
-							linkscore += hresult.getRelevantScore();
-						} else {
-							linkscore += 0.5;
-						}
+//						if (hresult == null) {
+//							linkscore += 0.5;
+//						} else {
+//							linkscore += hresult.getRelevantScore();
+//						}
 					}
 
-					linkscore /= sum;
+//					linkscore /= sum;
 
 					if (CrawlerConfig.getConfig().isTrainingMode()) {
 						ProxyModel m = ProxyService.retreiveContentByURL(l.getLinkUrl(), null);

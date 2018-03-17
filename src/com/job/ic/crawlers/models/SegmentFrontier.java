@@ -34,13 +34,14 @@ public class SegmentFrontier implements Serializable {
 
 	public void initialize() {
 //		this.ll = new LinkedList<>();
+		
 		if (CrawlerConfig.getConfig().isTrainingMode()) {
 			this.ll = new  PriorityBlockingQueue<>(100, (o1, o2) -> {
 				return -1*Double.compare(o1.getScore(), o2.getScore());
 			});
 		} else if (CrawlerConfig.getConfig().getPredictorTrainingPath() == null || CrawlerConfig.getConfig().getPredictorTrainingPath().equals("")) {
 			this.ll = new  PriorityBlockingQueue<>(100, (o1, o2) -> {
-				return -1 * Double.compare(o1.getAvgRelScore(), o2.getAvgRelScore());
+				return -1 * Double.compare(o1.getMaxRelScore(), o2.getMaxRelScore());
 			});
 		} else {
 			this.ll = new  PriorityBlockingQueue<>(100, (o1, o2) -> {
